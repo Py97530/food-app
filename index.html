@@ -20,13 +20,14 @@
   .nav-actions{display:flex;gap:12px}
   .nav-btn{font-size:20px;cursor:pointer;background:none;border:none;padding:4px;display:flex;flex-direction:column;align-items:center;line-height:1.1}
   .nav-btn span{font-size:9px;font-weight:500;color:var(--tl)}
+  .nav-btn.cal-on span{color:var(--warn)}
 
-  .container{max-width:720px;margin:0 auto;padding:16px}
+  .container{max-width:960px;margin:0 auto;padding:16px}
 
   /* 搜索 */
   .search-box{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 1px 12px rgba(0,0,0,.03);margin-bottom:12px}
   .input-row{display:flex;gap:8px}
-  .input-row input{flex:1;padding:11px 14px;border:2px solid var(--b);border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);outline:none}
+  .input-row input{flex:1;padding:11px 14px;border:2px solid var(--b);border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);outline:none;min-width:0}
   .input-row input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(74,222,128,.1)}
   .input-row button{padding:11px 18px;background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
   .input-row button:active{transform:scale(.96)}
@@ -48,19 +49,36 @@
   .dot:nth-child(3){animation-delay:.3s}
   @keyframes bounce{from{transform:translateY(0);opacity:.4}to{transform:translateY(-10px);opacity:1}}
 
+  /* === 双栏布局 === */
+  .dual-panel{display:flex;gap:12px;align-items:flex-start}
+  .panel-left{flex:1;min-width:0}
+  .panel-right{width:340px;flex-shrink:0;display:none}
+  .panel-right.show{display:block}
+  .panel-right-inner{position:sticky;top:68px;max-height:calc(100vh - 160px);overflow-y:auto}
+  @media(max-width:750px){
+    .dual-panel{flex-direction:column}
+    .panel-right{width:100%}
+    .panel-right-inner{position:static;max-height:none}
+  }
+
+  /* 右栏头部 */
+  .panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .panel-hd span{font-size:14px;font-weight:600;color:var(--t)}
+  .panel-hd button{background:none;border:none;font-size:18px;cursor:pointer;color:var(--tl);padding:2px 6px;border-radius:6px}
+  .panel-hd button:active{background:var(--bg)}
+
   /* 结果卡片 */
-  .result-card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 12px rgba(0,0,0,.03);display:none;animation:fadeIn .35s ease;margin-bottom:12px}
-  .result-card.show{display:block}
+  .result-card{background:var(--card);border-radius:16px;padding:16px 20px;box-shadow:0 1px 12px rgba(0,0,0,.03);animation:fadeIn .35s ease;margin-bottom:12px;position:relative}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .result-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--b)}
-  .result-header h2{font-size:16px;flex:1}
-  .result-actions{display:flex;gap:6px}
-  .act-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--b);background:var(--card);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .result-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--b)}
+  .result-header h2{font-size:15px;flex:1;padding-right:4px}
+  .result-actions{display:flex;gap:4px;flex-shrink:0}
+  .act-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--b);background:var(--card);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
   .act-btn:active{background:var(--bg)}
   .act-btn.liked{background:#fef2f2;border-color:#fecaca}
 
-  .result-content{font-size:14px;line-height:1.85;color:#4a4540;word-break:break-word}
-  .result-content h3{font-size:15px;margin:16px 0 8px;color:var(--gd)}
+  .result-content{font-size:13.5px;line-height:1.8;color:#4a4540;word-break:break-word}
+  .result-content h3{font-size:14px;margin:14px 0 6px;color:var(--gd)}
   .result-content ul,.result-content ol{padding-left:18px;margin:6px 0}
   .result-content li{margin:3px 0}
   .result-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;display:block;overflow-x:auto}
@@ -68,6 +86,9 @@
   .result-content th{background:#f0fdf4;color:var(--gd);font-weight:600}
   .result-content strong{color:var(--gd)}
   .result-content pre{background:#f5f5f0;padding:10px;border-radius:8px;overflow-x:auto;font-size:13px}
+
+  /* 左栏结果为空提示 */
+  .results-empty{text-align:center;padding:40px 20px;color:var(--tl);font-size:13px}
 
   /* 周食谱卡片 */
   .week-card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 12px rgba(0,0,0,.03);margin-bottom:12px}
@@ -104,7 +125,6 @@
   .btm-tab .tab-icon{font-size:22px;display:block;margin-bottom:2px}
   .btm-tab.active{color:var(--gd);font-weight:600}
 
-
   /* 分享预览 */
   .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
   .share-overlay.show{display:flex}
@@ -126,53 +146,76 @@
   <div class="logo">🥗 食光</div>
   <div class="nav-actions">
     <button class="nav-btn" onclick="toggleDislikes()" title="忌口设置">🚫<span>忌口</span></button>
-    <button class="nav-btn" onclick="toggleCalorie()" title="热量速查">🔥<span>热量</span></button>
+    <button class="nav-btn" id="calToggleBtn" onclick="toggleCalorie()" title="热量速查">🔥<span>热量</span></button>
   </div>
 </nav>
 
 <div class="container">
-  <!-- 分类切换 -->
-  <div class="cat-tabs">
-    <button class="cat-tab active" onclick="setMode('general',this)">🍽️ 通用</button>
-    <button class="cat-tab" onclick="setMode('disease',this)">🏥 疾病饮食</button>
-    <button class="cat-tab" onclick="setMode('recipe',this)">👨‍🍳 菜谱</button>
-    <button class="cat-tab" onclick="setMode('toxic',this)">⚠️ 食物相克</button>
-  </div>
+  <!-- === 双栏布局（查询页） === -->
+  <div class="dual-panel" id="dualPanel">
+    <!-- 左栏：AI 查询 -->
+    <div class="panel-left">
+      <!-- 分类切换 -->
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="setMode('general',this)">🍽️ 通用</button>
+        <button class="cat-tab" onclick="setMode('disease',this)">🏥 疾病饮食</button>
+        <button class="cat-tab" onclick="setMode('recipe',this)">👨‍🍳 菜谱</button>
+        <button class="cat-tab" onclick="setMode('toxic',this)">⚠️ 食物相克</button>
+      </div>
 
-  <!-- 搜索区 -->
-  <div id="searchBox">
-  <div class="search-box">
-    <div class="input-row">
-      <input id="queryInput" type="text" placeholder="比如：糖尿病能吃什么？" onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="300" />
-      <button id="askBtn" onclick="ask()">🔍 提问</button>
-    </div>
-    <div class="quick-tags" id="quickTags"></div>
+      <!-- 搜索 -->
+      <div class="search-box">
+        <div class="input-row">
+          <input id="queryInput" type="text" placeholder="比如：糖尿病能吃什么？" onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="300" />
+          <button id="askBtn" onclick="ask()">🔍 提问</button>
+        </div>
+        <div class="quick-tags" id="quickTags"></div>
+      </div>
 
-  </div>
+      <!-- Loading -->
+      <div class="loading-wrap" id="loading">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <p style="color:var(--tl);margin-top:8px;font-size:13px" id="loadingText">AI正在为你搭配...</p>
+      </div>
 
-  <!-- Loading -->
-  <div class="loading-wrap" id="loading">
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    <p style="color:var(--tl);margin-top:8px;font-size:13px" id="loadingText">AI正在为你搭配...</p>
-  </div>
-
-  <!-- 结果 -->
-  <div class="result-card" id="resultCard">
-    <div class="result-header">
-      <h2 id="resultTitle"></h2>
-      <div class="result-actions">
-        <button class="act-btn" id="pauseBtn" onclick="togglePause()" title="暂停/继续" style="display:none">⏸️</button>
-        <button class="act-btn" id="favBtn" onclick="toggleFav()" title="收藏">❤️</button>
-        <button class="act-btn" onclick="shareResult()" title="分享">📤</button>
+      <!-- 搜索结果区（多卡片累积） -->
+      <div id="resultsArea">
+        <div class="results-empty" id="resultsEmpty">💡 试试上面的快捷标签，或输入你关心的饮食问题</div>
       </div>
     </div>
-    <div class="result-content" id="resultContent"></div>
-  </div>
 
-  </div><!-- /searchBox -->
+    <!-- 右栏：热量速查 -->
+    <div class="panel-right" id="panelRight">
+      <div class="panel-right-inner">
+        <div class="panel-hd">
+          <span>🔥 热量速查</span>
+          <button onclick="toggleCalorie()" title="关闭热量面板">✕</button>
+        </div>
+        <div class="search-box" style="margin-bottom:8px">
+          <div class="input-row">
+            <input id="calInput" type="text" placeholder="输入食物名，如：鸡蛋、米饭" onkeydown="if(event.key==='Enter')calLookup()" />
+            <button id="calBtn" onclick="calLookup()">🔍 查</button>
+          </div>
+        </div>
+        <div class="loading-wrap" id="calLoading">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <p style="color:var(--tl);margin-top:8px;font-size:13px">正在查询热量...</p>
+        </div>
+        <div class="result-card" id="calResult" style="display:none">
+          <div class="result-header">
+            <h2 id="calTitle"></h2>
+            <div class="result-actions">
+              <button class="act-btn" onclick="shareCalResult()" title="分享">📤</button>
+            </div>
+          </div>
+          <div class="result-content" id="calContent"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /dualPanel -->
 
-  <!-- 周食谱区 -->
-  <div class="week-card" id="weekCard">
+  <!-- 周食谱区（切换到此tab时显示） -->
+  <div class="week-card" id="weekCard" style="display:none">
     <h3>📅 一周食谱规划</h3>
     <div class="week-presets">
       <button class="week-preset" onclick="genWeekPlan('减脂期一周食谱')">💪 减脂周</button>
@@ -192,20 +235,6 @@
   <!-- 历史列表 -->
   <div id="histList" style="display:none">
     <div class="list-card" id="histItems"><div class="empty-state"><div class="icon">📋</div><p>还没有搜索记录～</p></div></div>
-  </div>
-
-  <!-- 热量速查 -->
-  <div id="calorieCard" style="display:none">
-    <div class="search-box">
-      <div class="input-row">
-        <input id="calInput" type="text" placeholder="输入食物名，如：鸡蛋、米饭" onkeydown="if(event.key==='Enter')calLookup()" />
-        <button onclick="calLookup()">🔍 查热量</button>
-      </div>
-    </div>
-    <div class="result-card" id="calResult">
-      <div class="result-header"><h2 id="calTitle"></h2></div>
-      <div class="result-content" id="calContent"></div>
-    </div>
   </div>
 </div>
 
@@ -242,19 +271,20 @@
 
 <script>
 // ===== 核心配置 =====
-// ★ 部署 Cloudflare Worker 后，把下面的 WORKER_URL 换成你的 worker 地址，并注释掉 Key 那两行
-var WORKER_URL=''; // 填这里，如：https://shiguang.你的用户名.workers.dev
+var WORKER_URL='';
 var USE_PROXY=!!WORKER_URL;
 if(USE_PROXY){var API=WORKER_URL;}
 else{(function(){var a='sk-0748a47c21e9404',b='3b171358f5c9a251c';window._K=a+b;})();var API='https://api.deepseek.com/anthropic/messages';}
-var mode='general', currentQuery='', currentReply='', currentFav=false;
+var mode='general', currentQuery='', currentReply='', currentFav=false, activeCardId=null;
+var calQuery='', calReply='';
+var cardCounter=0, cardData={}; // {cardId: {q, r, fav}}
+
 function fetchTO(url,opts,ms,extCtrl){
   ms=ms||30000;
   var ctrl=extCtrl||new AbortController(),t=setTimeout(function(){ctrl.abort();},ms);
   opts.signal=ctrl.signal;
   return fetch(url,opts).then(function(r){clearTimeout(t);return r;});
 }
-// 流式状态
 var streamCtrl=null,streamPaused=false,streamStopped=false;
 
 var SYS={
@@ -282,14 +312,30 @@ function toast(m,g){
 function switchTab(t,el){
   document.querySelectorAll('.btm-tab').forEach(function(b){b.classList.remove('active');});
   el.classList.add('active');
-  document.getElementById('searchBox').style.display=t==='search'?'':'none';
-  document.getElementById('weekCard').style.display=t==='week'?'':'none';
-  document.getElementById('favList').style.display=t==='fav'?'':'none';
-  document.getElementById('histList').style.display=t==='hist'?'':'none';
-  // 切换到非搜索页才隐藏结果，切回搜索页保留结果
-  if(t!=='search')document.getElementById('resultCard').classList.remove('show');
-  if(t==='fav')renderFavs();
-  if(t==='hist')renderHist();
+  var dp=document.getElementById('dualPanel');
+  if(t==='search'){
+    dp.style.display='';
+    document.getElementById('weekCard').style.display='none';
+    document.getElementById('favList').style.display='none';
+    document.getElementById('histList').style.display='none';
+  }else if(t==='week'){
+    dp.style.display='none';
+    document.getElementById('weekCard').style.display='';
+    document.getElementById('favList').style.display='none';
+    document.getElementById('histList').style.display='none';
+  }else if(t==='fav'){
+    dp.style.display='none';
+    document.getElementById('weekCard').style.display='none';
+    document.getElementById('favList').style.display='';
+    document.getElementById('histList').style.display='none';
+    renderFavs();
+  }else if(t==='hist'){
+    dp.style.display='none';
+    document.getElementById('weekCard').style.display='none';
+    document.getElementById('favList').style.display='none';
+    document.getElementById('histList').style.display='';
+    renderHist();
+  }
 }
 
 function setMode(m,el){
@@ -324,27 +370,36 @@ function renderHist(){
     return '<div class="list-item" onclick="loadHist('+i+')"><span class="item-q">'+esc(item.q)+'</span><span class="item-time">'+ts+'</span><button class="item-del" onclick="event.stopPropagation();delHist('+i+')">✕</button></div>';
   }).join('');
 }
-
-function loadHist(i){ var h=getHist(),item=h[i];if(item){currentQuery=item.q;currentReply=item.r;showResult(item.q,item.r);switchTab('search',document.querySelector('.btm-tab'));} }
+function loadHist(i){ var h=getHist(),item=h[i];if(item){addResultCard(item.q);var cid=activeCardId;if(cid){currentQuery=item.q;currentReply=item.r;cardData[cid].q=item.q;cardData[cid].r=item.r;updateCardContent(cid,item.q,item.r);}switchTab('search',document.querySelector('.btm-tab'));} }
 
 // ===== 收藏管理 =====
 function getFavs(){ return JSON.parse(localStorage.getItem('ff')||'[]'); }
 function addFav(q,r){ var f=getFavs();var exists=f.find(function(x){return x.q===q;});if(exists)return false;f.unshift({q:q,r:r,time:Date.now()});if(f.length>50)f=f.slice(0,50);localStorage.setItem('ff',JSON.stringify(f));return true; }
 function delFav(i){ var f=getFavs();f.splice(i,1);localStorage.setItem('ff',JSON.stringify(f));renderFavs(); }
-function toggleFav(){
-  if(!currentReply)return;
-  if(currentFav){ var f=getFavs(),i=f.findIndex(function(x){return x.q===currentQuery;});if(i>=0){delFav(i);currentFav=false;document.getElementById('favBtn').textContent='❤️';toast('已取消收藏');} }
-  else { if(addFav(currentQuery,currentReply)){currentFav=true;document.getElementById('favBtn').textContent='❤️‍🔥';toast('已收藏 ❤️','good');} }
+function toggleCardFav(cardId){
+  var cd=cardData[cardId];if(!cd||!cd.r)return;
+  if(cd.fav){
+    var f=getFavs(),i=f.findIndex(function(x){return x.q===cd.q;});
+    if(i>=0){f.splice(i,1);localStorage.setItem('ff',JSON.stringify(f));}
+    cd.fav=false;
+    var fb=document.getElementById('favBtn-'+cardId);if(fb)fb.textContent='❤️';
+    toast('已取消收藏');
+  }else{
+    if(addFav(cd.q,cd.r)){cd.fav=true;
+      var fb=document.getElementById('favBtn-'+cardId);if(fb)fb.textContent='❤️‍🔥';
+      toast('已收藏 ❤️','good');
+    }
+  }
 }
 function renderFavs(){
   var f=getFavs(),el=document.getElementById('favItems');
-  if(!f.length){el.innerHTML='<div class="empty-state"><div class="icon">❤️</div><p>还没有收藏</p>';return;}
+  if(!f.length){el.innerHTML='<div class="empty-state"><div class="icon">❤️</div><p>还没有收藏</p></div>';return;}
   el.innerHTML=f.map(function(item,i){
     var t=new Date(item.time),ts=t.getMonth()+1+'/'+t.getDate()+' '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
     return '<div class="list-item" onclick="loadFav('+i+')"><span class="item-q">'+esc(item.q)+'</span><span class="item-time">'+ts+'</span><button class="item-del" onclick="event.stopPropagation();delFav('+i+')">✕</button></div>';
   }).join('');
 }
-function loadFav(i){ var f=getFavs(),item=f[i];if(item){currentQuery=item.q;currentReply=item.r;showResult(item.q,item.r);switchTab('search',document.querySelector('.btm-tab'));} }
+function loadFav(i){ var f=getFavs(),item=f[i];if(item){addResultCard(item.q);var cid=activeCardId;if(cid){currentQuery=item.q;currentReply=item.r;cardData[cid].q=item.q;cardData[cid].r=item.r;cardData[cid].fav=true;updateCardContent(cid,item.q,item.r);}switchTab('search',document.querySelector('.btm-tab'));} }
 
 function esc(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML.slice(0,40)+(s.length>40?'...':''); }
 
@@ -373,35 +428,106 @@ function toggleDislikes(){
   else {el.classList.add('show');renderDislikes();}
 }
 
-// ===== 显示结果 =====
-function showResult(q,r){
-  currentQuery=q;currentReply=r;
-  document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
-  document.getElementById('resultContent').innerHTML=parseMD(r);
-  document.getElementById('resultCard').classList.add('show');
-  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
-  // 检查收藏状态
-  var f=getFavs();currentFav=f.some(function(x){return x.q===q;});
-  document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
+// ===== 结果卡片管理 =====
+function addResultCard(q){
+  // 如果超过10张卡片，移除最旧的
+  var area=document.getElementById('resultsArea');
+  var existing=area.querySelectorAll('.result-card');
+  if(existing.length>=10){
+    var oldest=existing[existing.length-1];
+    var oldId=oldest.getAttribute('data-card-id');
+    if(oldId&&cardData[oldId])delete cardData[oldId];
+    oldest.remove();
+  }
+  // 如果还有空状态提示，隐藏
+  var empty=document.getElementById('resultsEmpty');
+  if(empty)empty.style.display='none';
+
+  var cardId='rc-'+ (++cardCounter);
+  var cd={q:q||'', r:'', fav:false};
+  cardData[cardId]=cd;
+  activeCardId=cardId;currentQuery=q||'';currentReply='';
+
+  var card=document.createElement('div');
+  card.className='result-card';
+  card.setAttribute('data-card-id',cardId);
+  card.style.display='none';
+  card.innerHTML='<div class="result-header">'
+    +'<h2 id="title-'+cardId+'">🥗 '+esc(q||'')+'</h2>'
+    +'<div class="result-actions">'
+    +'<button class="act-btn" id="pauseBtn-'+cardId+'" onclick="togglePause()" title="暂停/继续" style="display:none">⏸️</button>'
+    +'<button class="act-btn" id="favBtn-'+cardId+'" onclick="toggleCardFav(\''+cardId+'\')" title="收藏">❤️</button>'
+    +'<button class="act-btn" onclick="shareCard(\''+cardId+'\')" title="分享">📤</button>'
+    +'<button class="act-btn" onclick="closeCard(\''+cardId+'\')" title="关闭" style="color:var(--tl)">✕</button>'
+    +'</div></div>'
+    +'<div class="result-content" id="content-'+cardId+'"></div>';
+  // 插入到第一个位置（最新的在上面）
+  area.insertBefore(card, area.firstChild);
+  card.style.display='block';
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+  return cardId;
 }
 
-// ===== 核心查询（流式+10s超时+自动重试） =====
+function updateCardContent(cardId, q, r){
+  var titleEl=document.getElementById('title-'+cardId);
+  var contentEl=document.getElementById('content-'+cardId);
+  var favBtn=document.getElementById('favBtn-'+cardId);
+  if(titleEl)titleEl.innerHTML='🥗 '+esc(q);
+  if(contentEl)contentEl.innerHTML=parseMD(r);
+  if(favBtn){
+    var cd=cardData[cardId];
+    favBtn.textContent=(cd&&cd.fav)?'❤️‍🔥':'❤️';
+  }
+}
+
+function closeCard(cardId){
+  var card=document.querySelector('[data-card-id="'+cardId+'"]');
+  if(card)card.remove();
+  if(cardData[cardId])delete cardData[cardId];
+  if(activeCardId===cardId)activeCardId=null;
+  // 如果没卡片了显示空状态
+  var area=document.getElementById('resultsArea');
+  var remaining=area.querySelectorAll('.result-card');
+  if(!remaining.length){
+    var empty=document.getElementById('resultsEmpty');
+    if(empty)empty.style.display='';
+  }
+}
+
+function setCardStreaming(cardId){
+  var pauseBtn=document.getElementById('pauseBtn-'+cardId);
+  if(pauseBtn){pauseBtn.style.display='';pauseBtn.textContent='⏸️';}
+}
+
+function hideCardPauseBtn(cardId){
+  var pauseBtn=document.getElementById('pauseBtn-'+cardId);
+  if(pauseBtn)pauseBtn.style.display='none';
+}
+
+// ===== 核心查询（流式） =====
 async function ask(){
   var input=document.getElementById('queryInput'),q=input.value.trim();
   if(!q)return;if(q.length>300){toast('问题太长');return;}
   var qu=quota();if(qu.u>=50){toast('今日次数已用完，明天再来吧~');return;}
-  var btn=document.getElementById('askBtn'),load=document.getElementById('loading'),card=document.getElementById('resultCard');
-  var pauseBtn=document.getElementById('pauseBtn');
-  btn.disabled=true;load.classList.add('show');card.classList.remove('show');
-  pauseBtn.style.display='none';streamPaused=false;streamStopped=false;streamCtrl=null;
+  var btn=document.getElementById('askBtn'),load=document.getElementById('loading');
+  btn.disabled=true;load.classList.add('show');
+  streamPaused=false;streamStopped=false;streamCtrl=null;
   useQuota();
   var dislikes=getDislikes();
   if(dislikes.length>0&&mode!=='toxic'){
     q=q+'（注意：我不吃这些食物：'+dislikes.join('、')+'，请在回答中排除含有这些食材的搭配或菜谱）';
   }
+
+  // 创建新卡片
+  var cardId=addResultCard(q);
+  setCardStreaming(cardId);
+
   var reply='',ok=false;
   for(var attempt=0;attempt<2;attempt++){
-    if(attempt>0){load.classList.add('show');card.classList.remove('show');document.getElementById('loadingText').textContent='响应超时，正在重试...';}
+    if(attempt>0){
+      load.classList.add('show');
+      document.getElementById('loadingText').textContent='响应超时，正在重试...';
+    }
     var abortCtrl=new AbortController();streamCtrl=abortCtrl;streamPaused=false;
     try{
       var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},15000,abortCtrl);
@@ -420,62 +546,67 @@ async function ask(){
           try{var evt=JSON.parse(jsonStr);
             if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
               reply+=evt.delta.text;
-              if(!started){started=true;currentQuery=q;currentReply='';load.classList.remove('show');
-                document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
-                document.getElementById('resultCard').classList.add('show');
-                document.getElementById('favBtn').textContent='❤️';
-                pauseBtn.style.display='';pauseBtn.textContent='⏸️';}
-              if(!streamPaused){currentReply=reply;document.getElementById('resultContent').innerHTML=streamRender(reply);}
+              if(!started){
+                started=true;
+                load.classList.remove('show');
+                currentQuery=q;currentReply='';activeCardId=cardId;
+                cardData[cardId].q=q;
+              }
+              if(!streamPaused){
+                currentReply=reply;cardData[cardId].r=reply;
+                document.getElementById('content-'+cardId).innerHTML=streamRender(reply);
+              }
             }
           }catch(e){}
         }
       }
       if(!reply)throw new Error('无返回内容');
-      // 流式完成，用完整markdown重新渲染
-      document.getElementById('resultContent').innerHTML=parseMD(reply);
+      cardData[cardId].r=reply;currentReply=reply;currentQuery=q;
+      updateCardContent(cardId,q,reply);
       ok=true;break;
     }catch(e){
-      if(e.name==='AbortError'&&!streamStopped&&attempt===0){continue;} // 超时→重试
+      if(e.name==='AbortError'&&!streamStopped&&attempt===0){continue;}
       if(e.name==='AbortError'){
         if(streamStopped){toast('已停止生成');}
         else{toast('响应超时，请稍后重试');}
       }else{toast(e.message);}
       if(!streamStopped){qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
-      // 如果本次已有一部分内容，保留不隐藏
-      if(reply){currentReply=reply;document.getElementById('resultContent').innerHTML=parseMD(reply);}
+      if(reply){currentReply=reply;cardData[cardId].r=reply;updateCardContent(cardId,q,reply);}
       break;
     }
   }
   if(ok){
-    pauseBtn.style.display='none';
+    hideCardPauseBtn(cardId);activeCardId=cardId;
     addHist(q,reply);
-    currentFav=getFavs().some(function(x){return x.q===q;});
-    document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
-    switchTab('search',document.querySelector('.btm-tab'));
-  }else if(!streamStopped && !reply){
-    // 完全没有内容时才隐藏卡片
-    document.getElementById('resultCard').classList.remove('show');
-  }else if(!streamStopped && reply){
-    // 有部分内容：保留显示，也存入历史
-    currentReply=reply;
+    var f=getFavs();cardData[cardId].fav=f.some(function(x){return x.q===q;});
+    var fb=document.getElementById('favBtn-'+cardId);
+    if(fb)fb.textContent=cardData[cardId].fav?'❤️‍🔥':'❤️';
+  }else if(!streamStopped&&!reply){
+    closeCard(cardId);
+  }else if(!streamStopped&&reply){
+    cardData[cardId].r=reply;currentReply=reply;
     addHist(currentQuery||q,reply);
+    updateCardContent(cardId,currentQuery||q,reply);
+    hideCardPauseBtn(cardId);
     toast('生成中断，已保留已有内容');
   }
-  btn.disabled=false;load.classList.remove('show');pauseBtn.style.display='none';streamCtrl=null;
+  btn.disabled=false;load.classList.remove('show');streamCtrl=null;
+  // 确保在查询tab
+  switchTab('search',document.querySelector('.btm-tab'));
 }
 
 // ===== 暂停/停止控制 =====
 function togglePause(){
   streamPaused=!streamPaused;
-  var btn=document.getElementById('pauseBtn');
+  var cid=activeCardId;
+  var btn=cid?document.getElementById('pauseBtn-'+cid):null;
   if(streamPaused){
-    btn.textContent='▶️';btn.title='继续生成';
+    if(btn){btn.textContent='▶️';btn.title='继续生成';}
     toast('已暂停 ⏸️');
   }else{
-    btn.textContent='⏸️';btn.title='暂停生成';
-    // 立即渲染已缓冲内容
-    if(currentReply){
-      document.getElementById('resultContent').innerHTML=parseMD(currentReply);
+    if(btn){btn.textContent='⏸️';btn.title='暂停生成';}
+    if(currentReply&&cid){
+      document.getElementById('content-'+cid).innerHTML=parseMD(currentReply);
     }
     toast('继续生成 ▶️');
   }
@@ -486,6 +617,63 @@ function stopStream(){
     streamCtrl.abort();
     streamCtrl=null;
   }
+}
+
+// ===== 热量速查 =====
+function toggleCalorie(){
+  var el=document.getElementById('panelRight');
+  var btn=document.getElementById('calToggleBtn');
+  if(el.classList.contains('show')){
+    el.classList.remove('show');
+    if(btn)btn.classList.remove('cal-on');
+  }else{
+    el.classList.add('show');
+    if(btn)btn.classList.add('cal-on');
+  }
+}
+
+async function calLookup(){
+  var input=document.getElementById('calInput'),q=input.value.trim();if(!q)return;
+  q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
+  var load=document.getElementById('calLoading'),card=document.getElementById('calResult');
+  var btn=document.getElementById('calBtn');
+  load.classList.add('show');card.style.display='none';btn.disabled=true;
+  // 确保右栏可见
+  var pr=document.getElementById('panelRight');
+  if(!pr.classList.contains('show'))toggleCalorie();
+  calQuery=input.value.trim();calReply='';
+  try{
+    var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},10000);
+    if(!resp.ok)throw new Error('查询失败');
+    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
+    while(true){
+      var chunk=await reader.read();if(chunk.done)break;
+      buffer+=decoder.decode(chunk.value,{stream:true});
+      var lines=buffer.split('\n');buffer=lines.pop()||'';
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim();
+        if(!line.startsWith('data: '))continue;
+        var jsonStr=line.slice(6);
+        if(jsonStr==='[DONE]')continue;
+        try{var evt=JSON.parse(jsonStr);
+          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
+            reply+=evt.delta.text;
+            if(!started){started=true;load.classList.remove('show');card.style.display='block';
+              document.getElementById('calTitle').innerHTML='🔥 '+esc(calQuery)+' 营养数据';}
+            document.getElementById('calContent').innerHTML=streamRender(reply);
+          }
+        }catch(e){}
+      }
+    }
+    if(!reply)throw new Error('无返回内容');
+    calReply=reply;
+    document.getElementById('calContent').innerHTML=parseMD(reply);
+    document.getElementById('calTitle').innerHTML='🔥 '+esc(calQuery)+' 营养数据';
+  }catch(e){
+    if(e.name==='AbortError'){toast('请求超时');}
+    else{toast(e.message);}
+  }
+  finally{load.classList.remove('show');btn.disabled=false;}
 }
 
 // ===== 周食谱（流式） =====
@@ -533,66 +721,31 @@ async function genWeekPlan(q){
   finally{load.classList.remove('show');streamCtrl=null;}
 }
 
-// ===== 热量速查 =====
-function toggleCalorie(){
-  var el=document.getElementById('calorieCard');
-  el.style.display=el.style.display==='none'?'block':'none';
-}
-async function calLookup(){
-  var q=document.getElementById('calInput').value.trim();if(!q)return;
-  q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
-  var load=document.getElementById('loading');load.classList.add('show');
-  try{
-    var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},10000);
-    if(!resp.ok)throw new Error('查询失败');
-    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
-    while(true){
-      var chunk=await reader.read();if(chunk.done)break;
-      buffer+=decoder.decode(chunk.value,{stream:true});
-      var lines=buffer.split('\n');buffer=lines.pop()||'';
-      for(var i=0;i<lines.length;i++){
-        var line=lines[i].trim();
-        if(!line.startsWith('data: '))continue;
-        var jsonStr=line.slice(6);
-        if(jsonStr==='[DONE]')continue;
-        try{var evt=JSON.parse(jsonStr);
-          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
-            reply+=evt.delta.text;
-            if(!started){started=true;load.classList.remove('show');
-              document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
-              document.getElementById('calResult').classList.add('show');}
-            document.getElementById('calContent').innerHTML=streamRender(reply);
-          }
-        }catch(e){}
-      }
-    }
-    if(!reply)throw new Error('无返回内容');
-    document.getElementById('calContent').innerHTML=parseMD(reply);
-  }catch(e){
-    if(e.name==='AbortError'){toast('请求超时');}
-    else{toast(e.message);}
-  }
-  finally{load.classList.remove('show');}
+// ===== 分享卡片 =====
+function shareCard(cardId){
+  var cd=cardData[cardId];if(!cd||!cd.r)return;
+  currentQuery=cd.q;currentReply=cd.r;
+  drawShare(cd.q,cd.r);
 }
 
-// ===== 分享卡片 =====
-function shareResult(){
-  if(!currentReply)return;
-  var canvas=document.createElement('canvas');canvas.width=600;canvas.height=Math.min(1200,currentReply.length/2+300);
+function shareCalResult(){
+  if(!calReply)return;
+  currentQuery=calQuery;currentReply=calReply;
+  drawShare(calQuery,calReply);
+}
+
+function drawShare(q,r){
+  var canvas=document.createElement('canvas');canvas.width=600;canvas.height=Math.min(1200,r.length/2+300);
   var ctx=canvas.getContext('2d');
-  // 背景
   ctx.fillStyle='#faf7f2';ctx.fillRect(0,0,canvas.width,canvas.height);
-  // 标题
   ctx.fillStyle='#22c55e';ctx.font='bold 20px "PingFang SC","Microsoft YaHei"';ctx.fillText('🥗 食光 · 健康饮食助手',24,40);
-  ctx.fillStyle='#3d3a35';ctx.font='16px "PingFang SC","Microsoft YaHei"';ctx.fillText(currentQuery.slice(0,50),24,70);
+  ctx.fillStyle='#3d3a35';ctx.font='16px "PingFang SC","Microsoft YaHei"';ctx.fillText(q.slice(0,50),24,70);
   ctx.strokeStyle='#e8e3db';ctx.beginPath();ctx.moveTo(24,85);ctx.lineTo(576,85);ctx.stroke();
-  // 内容
   ctx.fillStyle='#4a4540';ctx.font='13px "PingFang SC","Microsoft YaHei"';
-  var lines=currentReply.split('\n'),y=110;
+  var lines=r.split('\n'),y=110;
   for(var i=0;i<lines.length;i++){
     var line=lines[i].replace(/\*\*/g,'').replace(/###/g,'').replace(/#/g,'');
     if(!line.trim()){y+=8;continue;}
-    // 简单换行
     var maxW=552,chars=line.split(''),curLine='';
     for(var j=0;j<chars.length;j++){
       var test=curLine+chars[j];
@@ -602,16 +755,14 @@ function shareResult(){
     if(curLine)ctx.fillText(curLine,24,y);y+=20;
     if(y>canvas.height-40)break;
   }
-  // 底部
   ctx.fillStyle='#78746d';ctx.font='11px "PingFang SC","Microsoft YaHei"';ctx.fillText('via 食光 · 健康饮食助手',24,canvas.height-20);
-
   var img=canvas.toDataURL('image/png');
   document.getElementById('shareImg').src=img;
   document.getElementById('shareOverlay').classList.add('show');
   toast('长按图片即可保存分享 📱','good');
 }
 
-// ===== 流式安全渲染（不用表格解析，避免半成品markdown损坏DOM） =====
+// ===== 流式安全渲染 =====
 function streamRender(t){
   var h=t;h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
@@ -621,7 +772,7 @@ function streamRender(t){
   return h;
 }
 
-// ===== Markdown解析（完整版，生成完成后调用） =====
+// ===== Markdown解析 =====
 function parseMD(md){
   var h=md;h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   h=h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
