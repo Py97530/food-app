@@ -153,6 +153,7 @@
     <div class="result-header">
       <h2 id="resultTitle"></h2>
       <div class="result-actions">
+        <button class="act-btn" id="pauseBtn" onclick="togglePause()" title="暂停/继续" style="display:none">⏸️</button>
         <button class="act-btn" id="favBtn" onclick="toggleFav()" title="收藏">❤️</button>
         <button class="act-btn" onclick="shareResult()" title="分享">📤</button>
       </div>
@@ -236,12 +237,14 @@
 (function(){ var a='sk-0748a47c21e9404',b='3b171358f5c9a251c'; window._K=a+b; })();
 var API='https://api.deepseek.com/anthropic/messages';
 var mode='general', currentQuery='', currentReply='', currentFav=false;
-function fetchTO(url,opts,ms){
+function fetchTO(url,opts,ms,extCtrl){
   ms=ms||30000;
-  var ctrl=new AbortController(),t=setTimeout(function(){ctrl.abort();},ms);
+  var ctrl=extCtrl||new AbortController(),t=setTimeout(function(){ctrl.abort();},ms);
   opts.signal=ctrl.signal;
   return fetch(url,opts).then(function(r){clearTimeout(t);return r;});
 }
+// 流式状态
+var streamCtrl=null,streamPaused=false,streamStopped=false;
 
 var SYS={
   general:'你是专业营养师。用表格列搭配(食物组合|营养优势|适合场景)，重点**加粗**，###分隔，最后💡小贴士。亲切自然。',
@@ -370,59 +373,97 @@ function showResult(q,r){
   document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
 }
 
-// ===== 核心查询（流式输出） =====
+// ===== 核心查询（流式+10s超时+自动重试） =====
 async function ask(){
   var input=document.getElementById('queryInput'),q=input.value.trim();
   if(!q)return;if(q.length>300){toast('问题太长');return;}
   var qu=quota();if(qu.u>=50){toast('今日次数已用完，明天再来吧~');return;}
   var btn=document.getElementById('askBtn'),load=document.getElementById('loading'),card=document.getElementById('resultCard');
+  var pauseBtn=document.getElementById('pauseBtn');
   btn.disabled=true;load.classList.add('show');card.classList.remove('show');
+  pauseBtn.style.display='none';streamPaused=false;streamStopped=false;streamCtrl=null;
   useQuota();
-  // 自动附加忌口
   var dislikes=getDislikes();
   if(dislikes.length>0&&mode!=='toxic'){
     q=q+'（注意：我不吃这些食物：'+dislikes.join('、')+'，请在回答中排除含有这些食材的搭配或菜谱）';
   }
-  try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:1200,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},45000);
-    if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
-    // === 流式读取 SSE ===
-    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
-    while(true){
-      var chunk=await reader.read();
-      if(chunk.done)break;
-      buffer+=decoder.decode(chunk.value,{stream:true});
-      var lines=buffer.split('\n');buffer=lines.pop()||'';
-      for(var i=0;i<lines.length;i++){
-        var line=lines[i].trim();
-        if(!line.startsWith('data: '))continue;
-        var jsonStr=line.slice(6);
-        if(jsonStr==='[DONE]')continue;
-        try{var evt=JSON.parse(jsonStr);
-          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
-            reply+=evt.delta.text;
-            if(!started){started=true;currentQuery=q;currentReply='';load.classList.remove('show');
-              document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
-              document.getElementById('resultCard').classList.add('show');
-              document.getElementById('favBtn').textContent='❤️';}
-            currentReply=reply;
-            document.getElementById('resultContent').innerHTML=parseMD(reply);
-          }
-        }catch(e){}
+  var reply='',ok=false;
+  for(var attempt=0;attempt<2;attempt++){
+    if(attempt>0){load.classList.add('show');card.classList.remove('show');document.getElementById('loadingText').textContent='响应超时，正在重试...';}
+    var abortCtrl=new AbortController();streamCtrl=abortCtrl;streamPaused=false;
+    try{
+      var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},10000,abortCtrl);
+      if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
+      var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',started=false;
+      reply='';
+      while(true){
+        var chunk=await reader.read();if(chunk.done)break;
+        buffer+=decoder.decode(chunk.value,{stream:true});
+        var lines=buffer.split('\n');buffer=lines.pop()||'';
+        for(var i=0;i<lines.length;i++){
+          var line=lines[i].trim();
+          if(!line.startsWith('data: '))continue;
+          var jsonStr=line.slice(6);
+          if(jsonStr==='[DONE]')continue;
+          try{var evt=JSON.parse(jsonStr);
+            if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
+              reply+=evt.delta.text;
+              if(!started){started=true;currentQuery=q;currentReply='';load.classList.remove('show');
+                document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
+                document.getElementById('resultCard').classList.add('show');
+                document.getElementById('favBtn').textContent='❤️';
+                pauseBtn.style.display='';pauseBtn.textContent='⏸️';}
+              if(!streamPaused){currentReply=reply;document.getElementById('resultContent').innerHTML=parseMD(reply);}
+            }
+          }catch(e){}
+        }
       }
+      if(!reply)throw new Error('无返回内容');
+      ok=true;break;
+    }catch(e){
+      if(e.name==='AbortError'&&!streamStopped&&attempt===0){continue;} // 超时→重试
+      if(e.name==='AbortError'){
+        if(streamStopped){toast('已停止生成');}
+        else{toast('响应超时，请稍后重试');}
+      }else{toast(e.message);}
+      if(!streamStopped){qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
+      break;
     }
-    if(!reply)throw new Error('无返回内容');
+  }
+  if(ok){
+    pauseBtn.style.display='none';
     addHist(q,reply);
     currentFav=getFavs().some(function(x){return x.q===q;});
     document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
     switchTab('search',document.querySelector('.btm-tab'));
-  }catch(e){
-    if(e.name==='AbortError'){toast('请求超时，请重试');}
-    else{toast(e.message);}
-    qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));
+  }else if(!streamStopped){
     document.getElementById('resultCard').classList.remove('show');
   }
-  finally{btn.disabled=false;load.classList.remove('show');}
+  btn.disabled=false;load.classList.remove('show');pauseBtn.style.display='none';streamCtrl=null;
+}
+
+// ===== 暂停/停止控制 =====
+function togglePause(){
+  streamPaused=!streamPaused;
+  var btn=document.getElementById('pauseBtn');
+  if(streamPaused){
+    btn.textContent='▶️';btn.title='继续生成';
+    toast('已暂停 ⏸️');
+  }else{
+    btn.textContent='⏸️';btn.title='暂停生成';
+    // 立即渲染已缓冲内容
+    if(currentReply){
+      document.getElementById('resultContent').innerHTML=parseMD(currentReply);
+    }
+    toast('继续生成 ▶️');
+  }
+}
+function stopStream(){
+  if(streamCtrl){
+    streamStopped=true;
+    streamCtrl.abort();
+    streamCtrl=null;
+  }
 }
 
 // ===== 周食谱（流式） =====
@@ -433,8 +474,10 @@ async function genWeekPlan(q){
   var qu=quota();if(qu.u>=50){toast('今日次数已用完');return;}
   var load=document.getElementById('loading');load.classList.add('show');
   useQuota();
+  streamPaused=false;streamStopped=false;streamCtrl=null;
+  var abortCtrl=new AbortController();streamCtrl=abortCtrl;
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:1500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},60000);
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1800,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},15000,abortCtrl);
     if(!resp.ok)throw new Error('生成失败');
     var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='';
     while(true){
@@ -449,7 +492,7 @@ async function genWeekPlan(q){
         try{var evt=JSON.parse(jsonStr);
           if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
             reply+=evt.delta.text;
-            document.getElementById('weekContent').innerHTML=parseMD(reply);
+            if(!streamPaused){document.getElementById('weekContent').innerHTML=parseMD(reply);}
           }
         }catch(e){}
       }
@@ -459,10 +502,12 @@ async function genWeekPlan(q){
     switchTab('week',document.querySelectorAll('.btm-tab')[1]);
     toast('周食谱已生成 ✅','good');
   }catch(e){
-    if(e.name==='AbortError'){toast('请求超时，请重试');}
-    else{toast(e.message);}
+    if(e.name==='AbortError'){
+      if(streamStopped){toast('已停止生成');}
+      else{toast('生成超时，请重试');}
+    }else{toast(e.message);}
   }
-  finally{load.classList.remove('show');}
+  finally{load.classList.remove('show');streamCtrl=null;}
 }
 
 // ===== 热量速查 =====
@@ -475,7 +520,7 @@ async function calLookup(){
   q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
   var load=document.getElementById('loading');load.classList.add('show');
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},30000);
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},10000);
     if(!resp.ok)throw new Error('查询失败');
     var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
     while(true){
