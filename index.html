@@ -275,7 +275,8 @@ function switchTab(t,el){
   document.getElementById('weekCard').style.display=t==='week'?'':'none';
   document.getElementById('favList').style.display=t==='fav'?'':'none';
   document.getElementById('histList').style.display=t==='hist'?'':'none';
-  document.getElementById('resultCard').classList.remove('show');
+  // 切换到非搜索页才隐藏结果，切回搜索页保留结果
+  if(t!=='search')document.getElementById('resultCard').classList.remove('show');
   if(t==='fav')renderFavs();
   if(t==='hist')renderHist();
 }
