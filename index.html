@@ -234,8 +234,11 @@
 
 <script>
 // ===== 核心配置 =====
-(function(){ var a='sk-0748a47c21e9404',b='3b171358f5c9a251c'; window._K=a+b; })();
-var API='https://api.deepseek.com/anthropic/messages';
+// ★ 部署 Cloudflare Worker 后，把下面的 WORKER_URL 换成你的 worker 地址，并注释掉 Key 那两行
+var WORKER_URL=''; // 填这里，如：https://shiguang.你的用户名.workers.dev
+var USE_PROXY=!!WORKER_URL;
+if(USE_PROXY){var API=WORKER_URL;}
+else{(function(){var a='sk-0748a47c21e9404',b='3b171358f5c9a251c';window._K=a+b;})();var API='https://api.deepseek.com/anthropic/messages';}
 var mode='general', currentQuery='', currentReply='', currentFav=false;
 function fetchTO(url,opts,ms,extCtrl){
   ms=ms||30000;
@@ -393,7 +396,7 @@ async function ask(){
     if(attempt>0){load.classList.add('show');card.classList.remove('show');document.getElementById('loadingText').textContent='响应超时，正在重试...';}
     var abortCtrl=new AbortController();streamCtrl=abortCtrl;streamPaused=false;
     try{
-      var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},15000,abortCtrl);
+      var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},15000,abortCtrl);
       if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
       var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',started=false;
       reply='';
@@ -488,7 +491,7 @@ async function genWeekPlan(q){
   streamPaused=false;streamStopped=false;streamCtrl=null;
   var abortCtrl=new AbortController();streamCtrl=abortCtrl;
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1800,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},15000,abortCtrl);
+    var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1800,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},15000,abortCtrl);
     if(!resp.ok)throw new Error('生成失败');
     var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='';
     while(true){
@@ -532,7 +535,7 @@ async function calLookup(){
   q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
   var load=document.getElementById('loading');load.classList.add('show');
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},10000);
+    var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},10000);
     if(!resp.ok)throw new Error('查询失败');
     var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
     while(true){
