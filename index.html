@@ -392,7 +392,7 @@ async function ask(){
     if(attempt>0){load.classList.add('show');card.classList.remove('show');document.getElementById('loadingText').textContent='响应超时，正在重试...';}
     var abortCtrl=new AbortController();streamCtrl=abortCtrl;streamPaused=false;
     try{
-      var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},10000,abortCtrl);
+      var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},15000,abortCtrl);
       if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
       var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',started=false;
       reply='';
@@ -429,8 +429,8 @@ async function ask(){
         else{toast('响应超时，请稍后重试');}
       }else{toast(e.message);}
       if(!streamStopped){qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
-      // 如果已有一部分内容，保留不隐藏
-      if(currentReply){document.getElementById('resultContent').innerHTML=parseMD(currentReply);}
+      // 如果本次已有一部分内容，保留不隐藏
+      if(reply){currentReply=reply;document.getElementById('resultContent').innerHTML=parseMD(reply);}
       break;
     }
   }
@@ -440,8 +440,14 @@ async function ask(){
     currentFav=getFavs().some(function(x){return x.q===q;});
     document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
     switchTab('search',document.querySelector('.btm-tab'));
-  }else if(!streamStopped){
+  }else if(!streamStopped && !reply){
+    // 完全没有内容时才隐藏卡片
     document.getElementById('resultCard').classList.remove('show');
+  }else if(!streamStopped && reply){
+    // 有部分内容：保留显示，也存入历史
+    currentReply=reply;
+    addHist(currentQuery||q,reply);
+    toast('生成中断，已保留已有内容');
   }
   btn.disabled=false;load.classList.remove('show');pauseBtn.style.display='none';streamCtrl=null;
 }
