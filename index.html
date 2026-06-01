@@ -6,281 +6,458 @@
 <title>食光 · 健康饮食助手</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  :root{--green:#4ade80;--green-dark:#22c55e;--bg:#faf7f2;--card:#fff;--text:#3d3a35;--text-light:#78746d;--border:#e8e3db}
-  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-  .logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .nav-links{display:flex;gap:14px;font-size:13px;color:var(--text-light)}
-  .nav-links span{cursor:pointer;transition:color .2s}
-  .nav-links span:hover,.nav-links span.active{color:var(--green-dark);font-weight:600}
-  .container{max-width:720px;margin:0 auto;padding:20px 16px 60px}
-  .hero{text-align:center;padding:28px 0 22px}
-  .hero h1{font-size:28px;font-weight:700;margin-bottom:8px}
-  .hero .accent{background:linear-gradient(135deg,#4ade80,#22c55e,#16a34a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .hero p{color:var(--text-light);font-size:14px;line-height:1.6}
-  .search-box{background:var(--card);border-radius:18px;padding:20px 18px;box-shadow:0 2px 16px rgba(0,0,0,.035);margin-bottom:16px}
-  .input-row{display:flex;gap:10px}
-  .input-row input{flex:1;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);outline:none;transition:border-color .2s}
-  .input-row input:focus{border-color:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.1)}
-  .input-row button{padding:12px 22px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:transform .15s,box-shadow .2s}
+  :root{--g:#4ade80;--gd:#22c55e;--bg:#faf7f2;--card:#fff;--t:#3d3a35;--tl:#78746d;--b:#e8e3db;--warn:#f59e0b;--red:#ef4444}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;-webkit-tap-highlight-color:transparent;padding-bottom:80px}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100}
+  .logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--g),var(--gd));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-actions{display:flex;gap:12px}
+  .nav-btn{font-size:20px;cursor:pointer;background:none;border:none;padding:4px}
+
+  .container{max-width:720px;margin:0 auto;padding:16px}
+
+  /* 搜索 */
+  .search-box{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 1px 12px rgba(0,0,0,.03);margin-bottom:12px}
+  .input-row{display:flex;gap:8px}
+  .input-row input{flex:1;padding:11px 14px;border:2px solid var(--b);border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);outline:none}
+  .input-row input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(74,222,128,.1)}
+  .input-row button{padding:11px 18px;background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
   .input-row button:active{transform:scale(.96)}
   .input-row button:disabled{opacity:.5;pointer-events:none}
-  .quick-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-  .quick-tag{padding:6px 12px;border-radius:100px;font-size:12px;border:1px solid var(--border);background:#fff;cursor:pointer;color:var(--text-light);font-family:inherit;transition:all .2s}
-  .quick-tag:active{border-color:#4ade80;color:#22c55e;background:#f0fdf4}
+  .quick-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .quick-tag{padding:5px 11px;border-radius:100px;font-size:12px;border:1px solid var(--b);background:var(--card);cursor:pointer;color:var(--tl);font-family:inherit;transition:all .15s;white-space:nowrap}
+  .quick-tag:active{border-color:var(--g);color:var(--gd);background:#f0fdf4}
+
+  /* 分类标签 */
+  .cat-tabs{display:flex;gap:4px;margin-bottom:12px;background:var(--card);border-radius:14px;padding:4px;box-shadow:0 1px 8px rgba(0,0,0,.02)}
+  .cat-tab{flex:1;text-align:center;padding:9px 6px;border-radius:11px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--tl);font-family:inherit;transition:all .15s}
+  .cat-tab.active{background:var(--g);color:#fff;font-weight:600}
+
+  /* Loading */
   .loading-wrap{display:none;text-align:center;padding:36px}
   .loading-wrap.show{display:block}
-  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin:0 3px;animation:bounce .6s ease-in-out infinite alternate}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);margin:0 3px;animation:bounce .6s ease-in-out infinite alternate}
   .dot:nth-child(2){animation-delay:.15s}
   .dot:nth-child(3){animation-delay:.3s}
   @keyframes bounce{from{transform:translateY(0);opacity:.4}to{transform:translateY(-10px);opacity:1}}
-  .result-card{background:var(--card);border-radius:18px;padding:24px 18px;box-shadow:0 2px 16px rgba(0,0,0,.035);display:none;animation:fadeIn .35s ease}
+
+  /* 结果卡片 */
+  .result-card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 12px rgba(0,0,0,.03);display:none;animation:fadeIn .35s ease;margin-bottom:12px}
   .result-card.show{display:block}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  .result-card h2{font-size:17px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-  .result-content{font-size:14px;line-height:1.8;color:#4a4540;word-break:break-word}
-  .result-content h3{font-size:15px;margin:18px 0 8px;color:#22c55e}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .result-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--b)}
+  .result-header h2{font-size:16px;flex:1}
+  .result-actions{display:flex;gap:6px}
+  .act-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--b);background:var(--card);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .act-btn:active{background:var(--bg)}
+  .act-btn.liked{background:#fef2f2;border-color:#fecaca}
+
+  .result-content{font-size:14px;line-height:1.85;color:#4a4540;word-break:break-word}
+  .result-content h3{font-size:15px;margin:16px 0 8px;color:var(--gd)}
   .result-content ul,.result-content ol{padding-left:18px;margin:6px 0}
   .result-content li{margin:3px 0}
-  .result-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;display:block;overflow-x:auto}
-  .result-content th,.result-content td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
-  .result-content th{background:#f0fdf4;color:#22c55e;font-weight:600}
-  .result-content strong{color:#22c55e}
-  .result-content pre{background:#f5f5f0;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
-  .cards-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-  @media(max-width:480px){.cards-row{grid-template-columns:1fr}.hero h1{font-size:24px}}
-  .feature-card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 1px 10px rgba(0,0,0,.025);cursor:pointer;text-align:center;transition:all .2s}
-  .feature-card:active{transform:scale(.97);background:#fafdf8}
-  .feature-card .icon{font-size:34px;margin-bottom:8px}
-  .feature-card h3{font-size:15px;margin-bottom:4px}
-  .feature-card p{font-size:12px;color:var(--text-light);line-height:1.5}
-  .footer{text-align:center;padding:28px;color:var(--text-light);font-size:12px}
-  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;animation:fadeIn .3s ease;display:none}
+  .result-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;display:block;overflow-x:auto}
+  .result-content th,.result-content td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--b);white-space:nowrap}
+  .result-content th{background:#f0fdf4;color:var(--gd);font-weight:600}
+  .result-content strong{color:var(--gd)}
+  .result-content pre{background:#f5f5f0;padding:10px;border-radius:8px;overflow-x:auto;font-size:13px}
+
+  /* 周食谱卡片 */
+  .week-card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 12px rgba(0,0,0,.03);margin-bottom:12px}
+  .week-card h3{font-size:16px;margin-bottom:12px;color:var(--gd)}
+  .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;overflow-x:auto}
+  .week-day{text-align:center;padding:8px 4px;border-radius:10px;font-size:11px;background:var(--bg);cursor:pointer;transition:all .15s;min-width:60px}
+  .week-day:hover{background:#f0fdf4}
+  .week-day .day-name{font-weight:600;color:var(--gd);margin-bottom:4px}
+  .week-day .day-meals{font-size:10px;color:var(--tl);line-height:1.4}
+  .week-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .week-preset{padding:6px 13px;border-radius:100px;font-size:12px;border:1px solid var(--b);background:var(--card);cursor:pointer;font-family:inherit;transition:all .15s}
+  .week-preset:active{border-color:var(--g);color:var(--gd)}
+
+  /* 收藏&历史列表 */
+  .list-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 1px 12px rgba(0,0,0,.03);margin-bottom:12px}
+  .list-item{padding:14px 16px;border-bottom:1px solid var(--b);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+  .list-item:last-child{border-bottom:none}
+  .list-item:active{background:var(--bg)}
+  .list-item .item-q{font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .list-item .item-time{font-size:11px;color:var(--tl);margin-left:8px;white-space:nowrap}
+  .list-item .item-del{width:28px;height:28px;border:none;border-radius:6px;background:none;font-size:14px;cursor:pointer;color:var(--tl);margin-left:4px}
+
+  .empty-state{text-align:center;padding:40px 20px;color:var(--tl)}
+  .empty-state .icon{font-size:48px;margin-bottom:12px}
+
+  /* Toast */
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;pointer-events:none;animation:fadeIn .3s ease;display:none;white-space:nowrap}
   .toast.show{display:block}
-  .quota-bar{margin-top:10px;font-size:11px;color:var(--text-light);text-align:right}
-  .quota-bar span{color:#22c55e;font-weight:600}
+  .toast.good{background:var(--gd)}
+
+  /* 底部Tab */
+  .btm-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--b);display:flex;z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+  .btm-tab{flex:1;text-align:center;padding:6px 0;font-size:11px;color:var(--tl);cursor:pointer;border:none;background:none;font-family:inherit;transition:all .15s}
+  .btm-tab .tab-icon{font-size:22px;display:block;margin-bottom:2px}
+  .btm-tab.active{color:var(--gd);font-weight:600}
+
+  .quota-bar{text-align:right;font-size:11px;color:var(--tl);margin-top:8px}
+  .quota-bar span{color:var(--gd);font-weight:600}
+  .quota-bar span.low{color:var(--red)}
+
+  /* 分享预览 */
+  .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
+  .share-overlay.show{display:flex}
+  .share-overlay img{border-radius:14px;max-width:90vw;max-height:70vh;box-shadow:0 16px 48px rgba(0,0,0,.3)}
+  .share-close{margin-top:16px;padding:10px 28px;background:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit}
+
+  /* 周食谱弹窗 */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+  .modal-overlay.show{display:flex}
+  .modal-sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:80vh;overflow-y:auto;padding:20px;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-sheet h3{font-size:18px;margin-bottom:16px}
+  .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);font-size:18px;cursor:pointer}
 </style>
 </head>
 <body>
 
 <nav class="nav">
   <div class="logo">🥗 食光</div>
-  <div class="nav-links">
-    <span class="active" onclick="switchTab('pair',this)">搭配</span>
-    <span onclick="switchTab('recipe',this)">菜谱</span>
-    <span onclick="switchTab('nutrition',this)">营养</span>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="toggleCalorie()" title="热量速查">🔥</button>
   </div>
 </nav>
 
 <div class="container">
-  <div class="hero">
-    <h1>吃得<span class="accent">明白</span>，活得<span class="accent">健康</span></h1>
-    <p>告诉我你想吃什么，AI帮你搭配最健康的方案</p>
+  <!-- 分类切换 -->
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="setMode('general',this)">🍽️ 通用</button>
+    <button class="cat-tab" onclick="setMode('disease',this)">🏥 疾病饮食</button>
+    <button class="cat-tab" onclick="setMode('recipe',this)">👨‍🍳 菜谱</button>
+    <button class="cat-tab" onclick="setMode('toxic',this)">⚠️ 食物相克</button>
   </div>
 
+  <!-- 搜索区 -->
+  <div id="searchBox">
   <div class="search-box">
     <div class="input-row">
-      <input id="queryInput" type="text" placeholder="比如：早餐牛奶鸡蛋配什么好？"
-        onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="200" />
+      <input id="queryInput" type="text" placeholder="比如：糖尿病能吃什么？" onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="300" />
       <button id="askBtn" onclick="ask()">🔍 提问</button>
     </div>
     <div class="quick-tags" id="quickTags"></div>
     <div class="quota-bar">今日剩余：<span id="quotaLeft">50</span> 次</div>
   </div>
 
+  <!-- Loading -->
   <div class="loading-wrap" id="loading">
     <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    <p style="color:var(--text-light);margin-top:8px;font-size:13px">AI正在为你搭配...</p>
+    <p style="color:var(--tl);margin-top:8px;font-size:13px" id="loadingText">AI正在为你搭配...</p>
   </div>
 
+  <!-- 结果 -->
   <div class="result-card" id="resultCard">
-    <h2 id="resultTitle"></h2>
+    <div class="result-header">
+      <h2 id="resultTitle"></h2>
+      <div class="result-actions">
+        <button class="act-btn" id="favBtn" onclick="toggleFav()" title="收藏">❤️</button>
+        <button class="act-btn" onclick="shareResult()" title="分享">📤</button>
+      </div>
+    </div>
     <div class="result-content" id="resultContent"></div>
   </div>
 
-  <div class="cards-row">
-    <div class="feature-card" onclick="quickAsk('我今天早餐午餐晚餐分别该怎么搭配才健康？')">
-      <div class="icon">📋</div><h3>一日三餐搭配</h3><p>全天健康饮食规划</p>
+  </div><!-- /searchBox -->
+
+  <!-- 周食谱区 -->
+  <div class="week-card" id="weekCard">
+    <h3>📅 一周食谱规划</h3>
+    <div class="week-presets">
+      <button class="week-preset" onclick="genWeekPlan('减脂期一周食谱')">💪 减脂周</button>
+      <button class="week-preset" onclick="genWeekPlan('增肌期一周食谱')">🏋️ 增肌周</button>
+      <button class="week-preset" onclick="genWeekPlan('糖尿病一周食谱')">🩸 糖尿病周</button>
+      <button class="week-preset" onclick="genWeekPlan('学生一周便当')">🎒 学生周</button>
+      <button class="week-preset" onclick="genWeekPlan('')">✨ 自定义</button>
     </div>
-    <div class="feature-card" onclick="quickAsk('减脂期应该怎么吃？给我完整的方案')">
-      <div class="icon">💪</div><h3>减脂饮食方案</h3><p>低卡不挨饿的科学吃法</p>
-    </div>
-    <div class="feature-card" onclick="quickAsk('番茄炒蛋怎么做？详细步骤和技巧')">
-      <div class="icon">🍳</div><h3>家常菜谱</h3><p>手把手教你做每道菜</p>
-    </div>
-    <div class="feature-card" onclick="quickAsk('增强免疫力的食物搭配建议')">
-      <div class="icon">🛡️</div><h3>增强免疫力</h3><p>吃出好身体的搭配</p>
-    </div>
+    <div id="weekContent"></div>
   </div>
 
-  <div class="footer">食光 · 健康饮食助手 · 美味不将就</div>
+  <!-- 收藏列表 -->
+  <div id="favList" style="display:none">
+    <div class="list-card" id="favItems"><div class="empty-state"><div class="icon">❤️</div><p>还没有收藏哦～</p></div></div>
+  </div>
+
+  <!-- 历史列表 -->
+  <div id="histList" style="display:none">
+    <div class="list-card" id="histItems"><div class="empty-state"><div class="icon">📋</div><p>还没有搜索记录～</p></div></div>
+  </div>
+
+  <!-- 热量速查 -->
+  <div id="calorieCard" style="display:none">
+    <div class="search-box">
+      <div class="input-row">
+        <input id="calInput" type="text" placeholder="输入食物名，如：鸡蛋、米饭" onkeydown="if(event.key==='Enter')calLookup()" />
+        <button onclick="calLookup()">🔍 查热量</button>
+      </div>
+    </div>
+    <div class="result-card" id="calResult">
+      <div class="result-header"><h2 id="calTitle"></h2></div>
+      <div class="result-content" id="calContent"></div>
+    </div>
+  </div>
 </div>
 
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- 分享预览 -->
+<div class="share-overlay" id="shareOverlay" onclick="this.classList.remove('show')">
+  <img id="shareImg" src="" alt="分享卡片" />
+  <button class="share-close" onclick="document.getElementById('shareOverlay').classList.remove('show')">关闭</button>
+</div>
+
+<!-- 底部导航 -->
+<div class="btm-nav">
+  <button class="btm-tab active" onclick="switchTab('search',this)"><span class="tab-icon">🔍</span>查询</button>
+  <button class="btm-tab" onclick="switchTab('week',this)"><span class="tab-icon">📅</span>周食谱</button>
+  <button class="btm-tab" onclick="switchTab('fav',this)"><span class="tab-icon">❤️</span>收藏</button>
+  <button class="btm-tab" onclick="switchTab('hist',this)"><span class="tab-icon">📋</span>历史</button>
+</div>
+
 <script>
-// ===== 防复制 =====
-// 禁止右键
-document.addEventListener('contextmenu', e => e.preventDefault());
-// 禁止F12/Ctrl+Shift+I/Ctrl+U
-document.addEventListener('keydown', e => {
-  if (e.key==='F12'||(e.ctrlKey&&e.shiftKey&&e.key==='I')||(e.ctrlKey&&e.key==='U')||(e.ctrlKey&&e.key==='S')){
-    e.preventDefault();
-  }
-});
+// ===== 核心配置 =====
+(function(){ var a='sk-0748a47c21e9404',b='3b171358f5c9a251c'; window._K=a+b; })();
+var API='https://api.deepseek.com/anthropic/messages';
+var mode='general', currentQuery='', currentReply='', currentFav=false;
 
-// ===== API配置（密钥拆分存储，拼接后使用）=====
-(function(){
-  var _0x1='sk-0748a47c21e9404';
-  var _0x2='3b171358f5c9a251c';
-  window._apiKey = _0x1 + _0x2;
-})();
+var SYS={
+  general:'你是专业营养师。用表格列搭配(食物组合|营养优势|适合场景)，重点**加粗**，###分隔，最后💡小贴士。亲切自然。',
+  disease:'你是临床营养医师。针对用户疾病给饮食建议：列出✅推荐食物+❌禁忌食物+📋一日参考食谱。用表格，###分隔。强调必须遵医嘱。',
+  recipe:'你是资深厨师。给出详细做法：食材用量+分步骤+烹饪时间+关键技巧。用有序列表，###分隔，最后💡小贴士。',
+  toxic:'你是食品安全与营养学专家。用户会询问两种或多种食物能否一起吃。回答格式：### ⚠️ 结论（一句话）### ❌ 不能一起吃的原因（说明发生的化学反应/中毒机制/症状）### ⚠️ 危险程度（⭐1-5评级）### ⏰ 如果不慎同食（急救措施）### 💡 安全建议。如果是民间谣言要明确指出"这是谣言，没有科学依据"。中文回答，表格列出相克组合。'
+};
 
-var API_URL = 'https://api.deepseek.com/anthropic/messages';
-
-var SYSTEM = '你是一个专业健康饮食顾问。用表格列搭配方案（食物组合|营养优势|适合场景），菜谱分步骤列。用###分隔，**加粗**重点，最后给💡小贴士。亲切自然。';
-
-// ===== 每日配额 =====
-function getQuota() {
-  var today = new Date().toDateString();
-  var data = JSON.parse(localStorage.getItem('food_quota') || '{"date":"","used":0}');
-  if (data.date !== today) { data = {date:today,used:0}; saveQuota(data); }
-  return data;
+// ===== 配额管理 =====
+function quota(){
+  var t=new Date().toDateString(),d=JSON.parse(localStorage.getItem('fq')||'{"d":"","u":0}');
+  if(d.d!==t){d={d:t,u:0};localStorage.setItem('fq',JSON.stringify(d));}
+  return d;
 }
-function saveQuota(d) { localStorage.setItem('food_quota', JSON.stringify(d)); }
-function updateQuotaUI() {
-  var q = getQuota();
-  var left = Math.max(0, 50 - q.used);
-  document.getElementById('quotaLeft').textContent = left;
-  if (left <= 5) document.getElementById('quotaLeft').style.color = '#dc2626';
+function useQuota(){ var q=quota();q.u++;localStorage.setItem('fq',JSON.stringify(q));upQuotaUI(); }
+function upQuotaUI(){
+  var l=Math.max(0,50-quota().u),el=document.getElementById('quotaLeft');
+  el.textContent=l;el.className=l<=5?'low':'';
 }
 
-// 快捷标签
-var tags = ['早餐怎么搭','减脂晚餐','增肌吃什么','番茄炒蛋','抗疲劳食物','美容养颜','失眠吃什么','学生便当'];
-var tagsDiv = document.getElementById('quickTags');
-tags.forEach(function(tag){
-  var b = document.createElement('button');
-  b.className='quick-tag'; b.textContent=tag;
-  b.onclick=function(){ quickAsk(tag); };
-  tagsDiv.appendChild(b);
-});
+// ===== Toast =====
+function toast(m,g){
+  var t=document.getElementById('toast');t.textContent=m;t.className='toast '+(g?'good':'')+' show';
+  if(t._t)clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2000);
+}
 
-var currentTab = 'pair';
-function switchTab(tab, el){
-  currentTab = tab;
-  document.querySelectorAll('.nav-links span').forEach(function(s){ s.classList.remove('active'); });
+// ===== Tab切换 =====
+function switchTab(t,el){
+  document.querySelectorAll('.btm-tab').forEach(function(b){b.classList.remove('active');});
   el.classList.add('active');
-  var ph = {pair:'早餐牛奶鸡蛋配什么好？',recipe:'宫保鸡丁怎么做？',nutrition:'运动后吃什么恢复快？'};
-  document.getElementById('queryInput').placeholder = '比如：'+ph[tab];
+  document.getElementById('searchBox').style.display=t==='search'?'':'none';
+  document.getElementById('weekCard').style.display=t==='week'?'':'none';
+  document.getElementById('favList').style.display=t==='fav'?'':'none';
+  document.getElementById('histList').style.display=t==='hist'?'':'none';
+  document.getElementById('resultCard').classList.remove('show');
+  if(t==='fav')renderFavs();
+  if(t==='hist')renderHist();
 }
 
-function quickAsk(q){ document.getElementById('queryInput').value=q; ask(); }
-
-function toast(msg){
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+function setMode(m,el){
+  mode=m;
+  document.querySelectorAll('.cat-tab').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  var ph={general:'早餐牛奶鸡蛋配什么好？',disease:'糖尿病能吃什么不能吃什么？',recipe:'番茄炒蛋怎么做？',toxic:'虾和维生素C能一起吃吗？'};
+  document.getElementById('queryInput').placeholder='比如：'+ph[m];
+  var tags={general:['早餐搭配','减脂晚餐','增肌吃什么','美容养颜','失眠食疗'],disease:['糖尿病饮食','高血压食谱','痛风忌口','孕期营养','胃病养胃'],recipe:['番茄炒蛋','红烧肉','减脂餐','快手早餐','煲汤大全'],toxic:['虾+维C','柿子+螃蟹','菠菜+豆腐','牛肉+红糖','海鲜+啤酒']};
+  renderTags(tags[m]);
 }
 
+// ===== 快捷标签 =====
+function renderTags(arr){
+  var d=document.getElementById('quickTags');d.innerHTML='';
+  arr.forEach(function(t){
+    var b=document.createElement('button');b.className='quick-tag';b.textContent=t;
+    b.onclick=function(){document.getElementById('queryInput').value=t;ask();};
+    d.appendChild(b);
+  });
+}
+
+// ===== 历史管理 =====
+function getHist(){ return JSON.parse(localStorage.getItem('fh')||'[]'); }
+function addHist(q,r){ var h=getHist();h.unshift({q:q,r:r,time:Date.now()});if(h.length>50)h=h.slice(0,50);localStorage.setItem('fh',JSON.stringify(h)); }
+function delHist(i){ var h=getHist();h.splice(i,1);localStorage.setItem('fh',JSON.stringify(h));renderHist(); }
+function renderHist(){
+  var h=getHist(),el=document.getElementById('histItems');
+  if(!h.length){el.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>还没有搜索记录</p></div>';return;}
+  el.innerHTML=h.map(function(item,i){
+    var t=new Date(item.time),ts=t.getMonth()+1+'/'+t.getDate()+' '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+    return '<div class="list-item" onclick="loadHist('+i+')"><span class="item-q">'+esc(item.q)+'</span><span class="item-time">'+ts+'</span><button class="item-del" onclick="event.stopPropagation();delHist('+i+')">✕</button></div>';
+  }).join('');
+}
+
+function loadHist(i){ var h=getHist(),item=h[i];if(item){currentQuery=item.q;currentReply=item.r;showResult(item.q,item.r);switchTab('search',document.querySelector('.btm-tab'));} }
+
+// ===== 收藏管理 =====
+function getFavs(){ return JSON.parse(localStorage.getItem('ff')||'[]'); }
+function addFav(q,r){ var f=getFavs();var exists=f.find(function(x){return x.q===q;});if(exists)return false;f.unshift({q:q,r:r,time:Date.now()});if(f.length>50)f=f.slice(0,50);localStorage.setItem('ff',JSON.stringify(f));return true; }
+function delFav(i){ var f=getFavs();f.splice(i,1);localStorage.setItem('ff',JSON.stringify(f));renderFavs(); }
+function toggleFav(){
+  if(!currentReply)return;
+  if(currentFav){ var f=getFavs(),i=f.findIndex(function(x){return x.q===currentQuery;});if(i>=0){delFav(i);currentFav=false;document.getElementById('favBtn').textContent='❤️';toast('已取消收藏');} }
+  else { if(addFav(currentQuery,currentReply)){currentFav=true;document.getElementById('favBtn').textContent='❤️‍🔥';toast('已收藏 ❤️','good');} }
+}
+function renderFavs(){
+  var f=getFavs(),el=document.getElementById('favItems');
+  if(!f.length){el.innerHTML='<div class="empty-state"><div class="icon">❤️</div><p>还没有收藏</p>';return;}
+  el.innerHTML=f.map(function(item,i){
+    var t=new Date(item.time),ts=t.getMonth()+1+'/'+t.getDate()+' '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+    return '<div class="list-item" onclick="loadFav('+i+')"><span class="item-q">'+esc(item.q)+'</span><span class="item-time">'+ts+'</span><button class="item-del" onclick="event.stopPropagation();delFav('+i+')">✕</button></div>';
+  }).join('');
+}
+function loadFav(i){ var f=getFavs(),item=f[i];if(item){currentQuery=item.q;currentReply=item.r;showResult(item.q,item.r);switchTab('search',document.querySelector('.btm-tab'));} }
+
+function esc(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML.slice(0,40)+(s.length>40?'...':''); }
+
+// ===== 显示结果 =====
+function showResult(q,r){
+  currentQuery=q;currentReply=r;
+  document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
+  document.getElementById('resultContent').innerHTML=parseMD(r);
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'start'});
+  // 检查收藏状态
+  var f=getFavs();currentFav=f.some(function(x){return x.q===q;});
+  document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
+}
+
+// ===== 核心查询 =====
 async function ask(){
-  var input = document.getElementById('queryInput');
-  var query = input.value.trim();
-  if (!query) return;
-  if (query.length > 200) { toast('问题太长，请控制在200字以内'); return; }
-
-  // 检查配额
-  var quota = getQuota();
-  if (quota.used >= 50) { toast('今日提问已达上限（50次），明天再来吧~'); return; }
-
-  var btn = document.getElementById('askBtn');
-  var loading = document.getElementById('loading');
-  var resultCard = document.getElementById('resultCard');
-  var resultTitle = document.getElementById('resultTitle');
-  var resultContent = document.getElementById('resultContent');
-
-  btn.disabled = true;
-  loading.classList.add('show');
-  resultCard.classList.remove('show');
-
-  // 消耗一次配额
-  quota.used++;
-  saveQuota(quota);
-  updateQuotaUI();
-
-  try {
-    var resp = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + window._apiKey
-      },
-      body: JSON.stringify({
-        model: 'deepseek-v4-pro',
-        max_tokens: 1500,
-        stream: false,
-        system: SYSTEM,
-        messages: [{role:'user',content:query}]
-      })
-    });
-
-    if (!resp.ok) {
-      var errTxt = await resp.text();
-      console.error('API Error:', resp.status);
-      throw new Error('AI服务暂时不可用（'+resp.status+'），请重试');
-    }
-
-    var data = await resp.json();
-    var text = '';
-    (data.content||[]).forEach(function(b){
-      if (b.type==='text') text += b.text;
-    });
-
-    if (!text) throw new Error('AI没有返回内容，换个问法试试');
-
-    resultTitle.innerHTML = '🥗 ' + query.slice(0,28) + (query.length>28?'...':'');
-    resultContent.innerHTML = parseMD(text);
-    resultCard.classList.add('show');
-    resultCard.scrollIntoView({behavior:'smooth',block:'start'});
-
-  } catch(e){
-    toast(e.message);
-    // 失败退还配额
-    quota.used = Math.max(0, quota.used-1);
-    saveQuota(quota);
-    updateQuotaUI();
-  } finally {
-    btn.disabled = false;
-    loading.classList.remove('show');
-  }
+  var input=document.getElementById('queryInput'),q=input.value.trim();
+  if(!q)return;if(q.length>300){toast('问题太长');return;}
+  var qu=quota();if(qu.u>=50){toast('今日次数已用完，明天再来吧~');return;}
+  var btn=document.getElementById('askBtn'),load=document.getElementById('loading'),card=document.getElementById('resultCard');
+  btn.disabled=true;load.classList.add('show');card.classList.remove('show');
+  useQuota();
+  try{
+    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2000,stream:false,system:SYS[mode],messages:[{role:'user',content:q}]})});
+    if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
+    var data=await resp.json(),reply='';
+    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
+    if(!reply)throw new Error('无返回内容');
+    currentQuery=q;currentReply=reply;
+    showResult(q,reply);
+    addHist(q,reply);
+    switchTab('search',document.querySelector('.btm-tab'));
+  }catch(e){toast(e.message);qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));upQuotaUI();}
+  finally{btn.disabled=false;load.classList.remove('show');}
 }
 
+// ===== 周食谱 =====
+async function genWeekPlan(q){
+  if(!q){q=prompt('想要什么类型的周食谱？如：减脂、增肌、学生便当');if(!q)return;}
+  q='请生成一周7天的'+q+'，每天列出早中晚三餐，用表格形式，###每天一个标题，每餐列出具体食物和份量。';
+  document.getElementById('loadingText').textContent='正在生成一周食谱...';
+  var qu=quota();if(qu.u>=50){toast('今日次数已用完');return;}
+  document.getElementById('loading').classList.add('show');
+  useQuota();
+  try{
+    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2500,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
+    if(!resp.ok)throw new Error('生成失败');
+    var data=await resp.json(),reply='';
+    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
+    document.getElementById('weekContent').innerHTML=parseMD(reply);
+    currentQuery=q;currentReply=reply;
+    switchTab('week',document.querySelectorAll('.btm-tab')[1]);
+    toast('周食谱已生成 ✅','good');
+  }catch(e){toast(e.message);}
+  finally{document.getElementById('loading').classList.remove('show');}
+}
+
+// ===== 热量速查 =====
+function toggleCalorie(){
+  var el=document.getElementById('calorieCard');
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+async function calLookup(){
+  var q=document.getElementById('calInput').value.trim();if(!q)return;
+  q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
+  document.getElementById('loading').classList.add('show');
+  try{
+    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:600,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
+    var data=await resp.json(),reply='';
+    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
+    document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
+    document.getElementById('calContent').innerHTML=parseMD(reply);
+    document.getElementById('calResult').classList.add('show');
+  }catch(e){toast(e.message);}
+  finally{document.getElementById('loading').classList.remove('show');}
+}
+
+// ===== 分享卡片 =====
+function shareResult(){
+  if(!currentReply)return;
+  var canvas=document.createElement('canvas');canvas.width=600;canvas.height=Math.min(1200,currentReply.length/2+300);
+  var ctx=canvas.getContext('2d');
+  // 背景
+  ctx.fillStyle='#faf7f2';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // 标题
+  ctx.fillStyle='#22c55e';ctx.font='bold 20px "PingFang SC","Microsoft YaHei"';ctx.fillText('🥗 食光 · 健康饮食助手',24,40);
+  ctx.fillStyle='#3d3a35';ctx.font='16px "PingFang SC","Microsoft YaHei"';ctx.fillText(currentQuery.slice(0,50),24,70);
+  ctx.strokeStyle='#e8e3db';ctx.beginPath();ctx.moveTo(24,85);ctx.lineTo(576,85);ctx.stroke();
+  // 内容
+  ctx.fillStyle='#4a4540';ctx.font='13px "PingFang SC","Microsoft YaHei"';
+  var lines=currentReply.split('\n'),y=110;
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].replace(/\*\*/g,'').replace(/###/g,'').replace(/#/g,'');
+    if(!line.trim()){y+=8;continue;}
+    // 简单换行
+    var maxW=552,chars=line.split(''),curLine='';
+    for(var j=0;j<chars.length;j++){
+      var test=curLine+chars[j];
+      if(ctx.measureText(test).width>maxW){ctx.fillText(curLine,24,y);y+=20;curLine=chars[j];}
+      else curLine=test;
+    }
+    if(curLine)ctx.fillText(curLine,24,y);y+=20;
+    if(y>canvas.height-40)break;
+  }
+  // 底部
+  ctx.fillStyle='#78746d';ctx.font='11px "PingFang SC","Microsoft YaHei"';ctx.fillText('via 食光 · 健康饮食助手',24,canvas.height-20);
+
+  var img=canvas.toDataURL('image/png');
+  document.getElementById('shareImg').src=img;
+  document.getElementById('shareOverlay').classList.add('show');
+  toast('长按图片即可保存分享 📱','good');
+}
+
+// ===== Markdown解析 =====
 function parseMD(md){
-  var h = md;
-  h = h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  h = h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
-  h = h.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g,function(_,hd,rs){
-    var hc = hd.split('|').filter(function(c){return c.trim()}).map(function(c){return '<th>'+c.trim()+'</th>'}).join('');
-    var rr = rs.trim().split('\n').map(function(r){
-      return '<tr>'+r.split('|').filter(function(c){return c.trim()}).map(function(c){return '<td>'+c.trim()+'</td>'}).join('')+'</tr>';
+  var h=md;h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  h=h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
+  h=h.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g,function(_,hd,rs){
+    var hc=hd.split('|').filter(function(c){return c.trim();}).map(function(c){return '<th>'+c.trim()+'</th>';}).join('');
+    var rr=rs.trim().split('\n').map(function(r){
+      return '<tr>'+r.split('|').filter(function(c){return c.trim();}).map(function(c){return '<td>'+c.trim()+'</td>';}).join('')+'</tr>';
     }).join('');
     return '<table><thead><tr>'+hc+'</tr></thead><tbody>'+rr+'</tbody></table>';
   });
-  h = h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
-  h = h.replace(/^## (.+)$/gm,'<h3>$1</h3>');
-  h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  h = h.replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>');
-  h = h.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
-  h = h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ol>$1</ol>');
-  h = h.replace(/\n\n+/g,'</p><p>');
-  h = '<p>'+h+'</p>';
-  h = h.replace(/<p>\s*<\/p>/g,'');
-  h = h.replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
-  h = h.replace(/<p><table>/g,'<table>').replace(/<\/table><\/p>/g,'</table>');
-  h = h.replace(/<p><ol>/g,'<ol>').replace(/<\/ol><\/p>/g,'</ol>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>');
+  h=h.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ol>$1</ol>');
+  h=h.replace(/\n\n+/g,'</p><p>');
+  h='<p>'+h+'</p>';
+  h=h.replace(/<p>\s*<\/p>/g,'');h=h.replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
+  h=h.replace(/<p><table>/g,'<table>').replace(/<\/table><\/p>/g,'</table>');
+  h=h.replace(/<p><ol>/g,'<ol>').replace(/<\/ol><\/p>/g,'</ol>');
   return h;
 }
 
-updateQuotaUI();
+// ===== 初始化 =====
+renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
+upQuotaUI();
 </script>
 </body>
 </html>
