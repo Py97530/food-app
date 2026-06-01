@@ -96,9 +96,6 @@
   .btm-tab .tab-icon{font-size:22px;display:block;margin-bottom:2px}
   .btm-tab.active{color:var(--gd);font-weight:600}
 
-  .quota-bar{text-align:right;font-size:11px;color:var(--tl);margin-top:8px}
-  .quota-bar span{color:var(--gd);font-weight:600}
-  .quota-bar span.low{color:var(--red)}
 
   /* 分享预览 */
   .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column}
@@ -120,6 +117,7 @@
 <nav class="nav">
   <div class="logo">🥗 食光</div>
   <div class="nav-actions">
+    <button class="nav-btn" onclick="toggleDislikes()" title="忌口设置">🚫</button>
     <button class="nav-btn" onclick="toggleCalorie()" title="热量速查">🔥</button>
   </div>
 </nav>
@@ -141,7 +139,7 @@
       <button id="askBtn" onclick="ask()">🔍 提问</button>
     </div>
     <div class="quick-tags" id="quickTags"></div>
-    <div class="quota-bar">今日剩余：<span id="quotaLeft">50</span> 次</div>
+
   </div>
 
   <!-- Loading -->
@@ -205,6 +203,20 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- 忌口设置弹窗 -->
+<div class="modal-overlay" id="dislikeOverlay" onclick="event.target===this && toggleDislikes()">
+  <div class="modal-sheet" style="position:relative">
+    <h3>🚫 忌口设置</h3>
+    <button onclick="toggleDislikes()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);font-size:18px;cursor:pointer;font-family:inherit">✕</button>
+    <p style="font-size:12px;color:var(--tl);margin-bottom:12px">添加你不吃的食物，搜索菜谱和搭配时自动排除</p>
+    <div class="input-row" style="margin-bottom:10px">
+      <input id="dislikeInput" type="text" placeholder="如：香菜、芹菜、肥肉" onkeydown="if(event.key==='Enter')addDislike()" />
+      <button onclick="addDislike()">添加</button>
+    </div>
+    <div id="dislikeTags" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+</div>
+
 <!-- 分享预览 -->
 <div class="share-overlay" id="shareOverlay" onclick="this.classList.remove('show')">
   <img id="shareImg" src="" alt="分享卡片" />
@@ -224,6 +236,12 @@
 (function(){ var a='sk-0748a47c21e9404',b='3b171358f5c9a251c'; window._K=a+b; })();
 var API='https://api.deepseek.com/anthropic/messages';
 var mode='general', currentQuery='', currentReply='', currentFav=false;
+function fetchTO(url,opts,ms){
+  ms=ms||30000;
+  var ctrl=new AbortController(),t=setTimeout(function(){ctrl.abort();},ms);
+  opts.signal=ctrl.signal;
+  return fetch(url,opts).then(function(r){clearTimeout(t);return r;});
+}
 
 var SYS={
   general:'你是专业营养师。用表格列搭配(食物组合|营养优势|适合场景)，重点**加粗**，###分隔，最后💡小贴士。亲切自然。',
@@ -238,11 +256,7 @@ function quota(){
   if(d.d!==t){d={d:t,u:0};localStorage.setItem('fq',JSON.stringify(d));}
   return d;
 }
-function useQuota(){ var q=quota();q.u++;localStorage.setItem('fq',JSON.stringify(q));upQuotaUI(); }
-function upQuotaUI(){
-  var l=Math.max(0,50-quota().u),el=document.getElementById('quotaLeft');
-  el.textContent=l;el.className=l<=5?'low':'';
-}
+function useQuota(){ var q=quota();q.u++;localStorage.setItem('fq',JSON.stringify(q)); }
 
 // ===== Toast =====
 function toast(m,g){
@@ -319,6 +333,31 @@ function loadFav(i){ var f=getFavs(),item=f[i];if(item){currentQuery=item.q;curr
 
 function esc(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML.slice(0,40)+(s.length>40?'...':''); }
 
+// ===== 忌口管理 =====
+function getDislikes(){ try{return JSON.parse(localStorage.getItem('fd')||'[]');}catch(e){return[];} }
+function addDislike(){
+  var inp=document.getElementById('dislikeInput'),v=inp.value.trim();
+  if(!v)return;
+  if(v.length>20){toast('食物名太长');return;}
+  var d=getDislikes();
+  if(d.indexOf(v)>=0){toast('已经添加过了');return;}
+  d.push(v);localStorage.setItem('fd',JSON.stringify(d));
+  inp.value='';renderDislikes();toast('已添加：'+v,'good');
+}
+function removeDislike(i){ var d=getDislikes();d.splice(i,1);localStorage.setItem('fd',JSON.stringify(d));renderDislikes(); }
+function renderDislikes(){
+  var d=getDislikes(),el=document.getElementById('dislikeTags');
+  if(!d.length){el.innerHTML='<span style="color:var(--tl);font-size:12px;padding:6px">暂无设置，输入食物名添加</span>';return;}
+  el.innerHTML=d.map(function(item,i){
+    return '<span style="padding:6px 10px;border-radius:100px;font-size:12px;background:#fef2f2;border:1px solid #fecaca;display:inline-flex;align-items:center;gap:4px;cursor:default">'+esc(item)+' <span onclick="removeDislike('+i+')" style="cursor:pointer;font-size:14px;color:var(--red);line-height:1">✕</span></span>';
+  }).join('');
+}
+function toggleDislikes(){
+  var el=document.getElementById('dislikeOverlay');
+  if(el.classList.contains('show')){el.classList.remove('show');}
+  else {el.classList.add('show');renderDislikes();}
+}
+
 // ===== 显示结果 =====
 function showResult(q,r){
   currentQuery=q;currentReply=r;
@@ -339,8 +378,13 @@ async function ask(){
   var btn=document.getElementById('askBtn'),load=document.getElementById('loading'),card=document.getElementById('resultCard');
   btn.disabled=true;load.classList.add('show');card.classList.remove('show');
   useQuota();
+  // 自动附加忌口
+  var dislikes=getDislikes();
+  if(dislikes.length>0&&mode!=='toxic'){
+    q=q+'（注意：我不吃这些食物：'+dislikes.join('、')+'，请在回答中排除含有这些食材的搭配或菜谱）';
+  }
   try{
-    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2000,stream:false,system:SYS[mode],messages:[{role:'user',content:q}]})});
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2000,stream:false,system:SYS[mode],messages:[{role:'user',content:q}]})});
     if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
     var data=await resp.json(),reply='';
     (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
@@ -349,7 +393,7 @@ async function ask(){
     showResult(q,reply);
     addHist(q,reply);
     switchTab('search',document.querySelector('.btm-tab'));
-  }catch(e){toast(e.message);qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));upQuotaUI();}
+  }catch(e){toast(e.message);qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
   finally{btn.disabled=false;load.classList.remove('show');}
 }
 
@@ -362,7 +406,7 @@ async function genWeekPlan(q){
   document.getElementById('loading').classList.add('show');
   useQuota();
   try{
-    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2500,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2500,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
     if(!resp.ok)throw new Error('生成失败');
     var data=await resp.json(),reply='';
     (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
@@ -384,7 +428,7 @@ async function calLookup(){
   q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
   document.getElementById('loading').classList.add('show');
   try{
-    var resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:600,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:600,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
     var data=await resp.json(),reply='';
     (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
     document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
@@ -457,7 +501,6 @@ function parseMD(md){
 
 // ===== 初始化 =====
 renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
-upQuotaUI();
 </script>
 </body>
 </html>
