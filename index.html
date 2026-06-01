@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>食光 · 健康饮食助手</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4ade80">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="食光">
+<link rel="apple-touch-icon" href="icon-512.png">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{--g:#4ade80;--gd:#22c55e;--bg:#faf7f2;--card:#fff;--t:#3d3a35;--tl:#78746d;--b:#e8e3db;--warn:#f59e0b;--red:#ef4444}
@@ -640,6 +647,16 @@ function parseMD(md){
 
 // ===== 初始化 =====
 renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
+</script>
+<script>
+// 注册 Service Worker（PWA）
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/food-app/sw.js').then(function(){
+    console.log('SW registered');
+  }).catch(function(e){
+    console.log('SW failed:', e);
+  });
+}
 </script>
 </body>
 </html>

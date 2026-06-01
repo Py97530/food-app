@@ -1,0 +1,19 @@
+{
+  "name": "食光 · 健康饮食助手",
+  "short_name": "食光",
+  "description": "AI驱动的健康食物搭配与菜谱查询",
+  "start_url": "/food-app/",
+  "scope": "/food-app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f2",
+  "theme_color": "#4ade80",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
