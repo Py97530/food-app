@@ -370,7 +370,7 @@ function showResult(q,r){
   document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
 }
 
-// ===== 核心查询 =====
+// ===== 核心查询（流式输出） =====
 async function ask(){
   var input=document.getElementById('queryInput'),q=input.value.trim();
   if(!q)return;if(q.length>300){toast('问题太长');return;}
@@ -384,38 +384,85 @@ async function ask(){
     q=q+'（注意：我不吃这些食物：'+dislikes.join('、')+'，请在回答中排除含有这些食材的搭配或菜谱）';
   }
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2000,stream:false,system:SYS[mode],messages:[{role:'user',content:q}]})});
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:1200,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},45000);
     if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
-    var data=await resp.json(),reply='';
-    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
+    // === 流式读取 SSE ===
+    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
+    while(true){
+      var chunk=await reader.read();
+      if(chunk.done)break;
+      buffer+=decoder.decode(chunk.value,{stream:true});
+      var lines=buffer.split('\n');buffer=lines.pop()||'';
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim();
+        if(!line.startsWith('data: '))continue;
+        var jsonStr=line.slice(6);
+        if(jsonStr==='[DONE]')continue;
+        try{var evt=JSON.parse(jsonStr);
+          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
+            reply+=evt.delta.text;
+            if(!started){started=true;currentQuery=q;currentReply='';load.classList.remove('show');
+              document.getElementById('resultTitle').innerHTML='🥗 '+esc(q);
+              document.getElementById('resultCard').classList.add('show');
+              document.getElementById('favBtn').textContent='❤️';}
+            currentReply=reply;
+            document.getElementById('resultContent').innerHTML=parseMD(reply);
+          }
+        }catch(e){}
+      }
+    }
     if(!reply)throw new Error('无返回内容');
-    currentQuery=q;currentReply=reply;
-    showResult(q,reply);
     addHist(q,reply);
+    currentFav=getFavs().some(function(x){return x.q===q;});
+    document.getElementById('favBtn').textContent=currentFav?'❤️‍🔥':'❤️';
     switchTab('search',document.querySelector('.btm-tab'));
-  }catch(e){toast(e.message);qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
+  }catch(e){
+    if(e.name==='AbortError'){toast('请求超时，请重试');}
+    else{toast(e.message);}
+    qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));
+    document.getElementById('resultCard').classList.remove('show');
+  }
   finally{btn.disabled=false;load.classList.remove('show');}
 }
 
-// ===== 周食谱 =====
+// ===== 周食谱（流式） =====
 async function genWeekPlan(q){
   if(!q){q=prompt('想要什么类型的周食谱？如：减脂、增肌、学生便当');if(!q)return;}
   q='请生成一周7天的'+q+'，每天列出早中晚三餐，用表格形式，###每天一个标题，每餐列出具体食物和份量。';
   document.getElementById('loadingText').textContent='正在生成一周食谱...';
   var qu=quota();if(qu.u>=50){toast('今日次数已用完');return;}
-  document.getElementById('loading').classList.add('show');
+  var load=document.getElementById('loading');load.classList.add('show');
   useQuota();
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:2500,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:1500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},60000);
     if(!resp.ok)throw new Error('生成失败');
-    var data=await resp.json(),reply='';
-    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
-    document.getElementById('weekContent').innerHTML=parseMD(reply);
+    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='';
+    while(true){
+      var chunk=await reader.read();if(chunk.done)break;
+      buffer+=decoder.decode(chunk.value,{stream:true});
+      var lines=buffer.split('\n');buffer=lines.pop()||'';
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim();
+        if(!line.startsWith('data: '))continue;
+        var jsonStr=line.slice(6);
+        if(jsonStr==='[DONE]')continue;
+        try{var evt=JSON.parse(jsonStr);
+          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
+            reply+=evt.delta.text;
+            document.getElementById('weekContent').innerHTML=parseMD(reply);
+          }
+        }catch(e){}
+      }
+    }
+    if(!reply)throw new Error('无返回内容');
     currentQuery=q;currentReply=reply;
     switchTab('week',document.querySelectorAll('.btm-tab')[1]);
     toast('周食谱已生成 ✅','good');
-  }catch(e){toast(e.message);}
-  finally{document.getElementById('loading').classList.remove('show');}
+  }catch(e){
+    if(e.name==='AbortError'){toast('请求超时，请重试');}
+    else{toast(e.message);}
+  }
+  finally{load.classList.remove('show');}
 }
 
 // ===== 热量速查 =====
@@ -426,16 +473,37 @@ function toggleCalorie(){
 async function calLookup(){
   var q=document.getElementById('calInput').value.trim();if(!q)return;
   q=q+' 的热量、蛋白质、脂肪、碳水化合物各是多少？请用表格列出每100g的营养成分。';
-  document.getElementById('loading').classList.add('show');
+  var load=document.getElementById('loading');load.classList.add('show');
   try{
-    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:600,stream:false,system:SYS.general,messages:[{role:'user',content:q}]})});
-    var data=await resp.json(),reply='';
-    (data.content||[]).forEach(function(b){if(b.type==='text')reply+=b.text;});
-    document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
-    document.getElementById('calContent').innerHTML=parseMD(reply);
-    document.getElementById('calResult').classList.add('show');
-  }catch(e){toast(e.message);}
-  finally{document.getElementById('loading').classList.remove('show');}
+    var resp=await fetchTO(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-v4-pro',max_tokens:500,stream:true,system:SYS.general,messages:[{role:'user',content:q}]})},30000);
+    if(!resp.ok)throw new Error('查询失败');
+    var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',reply='',started=false;
+    while(true){
+      var chunk=await reader.read();if(chunk.done)break;
+      buffer+=decoder.decode(chunk.value,{stream:true});
+      var lines=buffer.split('\n');buffer=lines.pop()||'';
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim();
+        if(!line.startsWith('data: '))continue;
+        var jsonStr=line.slice(6);
+        if(jsonStr==='[DONE]')continue;
+        try{var evt=JSON.parse(jsonStr);
+          if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
+            reply+=evt.delta.text;
+            if(!started){started=true;load.classList.remove('show');
+              document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
+              document.getElementById('calResult').classList.add('show');}
+            document.getElementById('calContent').innerHTML=parseMD(reply);
+          }
+        }catch(e){}
+      }
+    }
+    if(!reply)throw new Error('无返回内容');
+  }catch(e){
+    if(e.name==='AbortError'){toast('请求超时');}
+    else{toast(e.message);}
+  }
+  finally{load.classList.remove('show');}
 }
 
 // ===== 分享卡片 =====
