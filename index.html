@@ -5,135 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>食光 · 健康饮食助手</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --green: #4ade80; --green-dark: #22c55e; --orange: #fb923c;
-    --bg: #faf7f2; --card: #ffffff; --text: #3d3a35; --text-light: #78746d;
-    --border: #e8e3db;
-  }
-
-  body {
-    font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-    background: var(--bg); color: var(--text); min-height: 100vh;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px; background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-  }
-  .logo {
-    font-size: 18px; font-weight: 700;
-    background: linear-gradient(135deg, #4ade80, #22c55e);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; letter-spacing: 1px;
-  }
-  .nav-links { display: flex; gap: 14px; font-size: 13px; color: var(--text-light); }
-  .nav-links span { cursor: pointer; transition: color 0.2s; }
-  .nav-links span:hover, .nav-links span.active { color: var(--green-dark); font-weight: 600; }
-
-  .container { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
-
-  .hero { text-align: center; padding: 28px 0 22px; }
-  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-  .hero .accent {
-    background: linear-gradient(135deg, #4ade80, #22c55e, #16a34a);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hero p { color: var(--text-light); font-size: 14px; line-height: 1.6; }
-
-  .search-box {
-    background: var(--card); border-radius: 18px; padding: 20px 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.035); margin-bottom: 16px;
-  }
-  .input-row { display: flex; gap: 10px; }
-  .input-row input {
-    flex: 1; padding: 12px 16px; border: 2px solid var(--border);
-    border-radius: 12px; font-size: 15px; font-family: inherit;
-    background: var(--bg); outline: none; transition: border-color 0.2s;
-  }
-  .input-row input:focus { border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
-  .input-row button {
-    padding: 12px 22px; background: linear-gradient(135deg, #4ade80, #22c55e);
-    color: white; border: none; border-radius: 12px; font-size: 15px;
-    font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit;
-    transition: transform 0.15s, box-shadow 0.2s;
-  }
-  .input-row button:active { transform: scale(0.96); }
-  .input-row button:disabled { opacity: 0.5; pointer-events: none; }
-
-  .quick-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
-  .quick-tag {
-    padding: 6px 12px; border-radius: 100px; font-size: 12px;
-    border: 1px solid var(--border); background: white; cursor: pointer;
-    color: var(--text-light); font-family: inherit;
-    transition: all 0.2s; -webkit-tap-highlight-color: transparent;
-  }
-  .quick-tag:active { border-color: #4ade80; color: #22c55e; background: #f0fdf4; }
-
-  .loading-wrap { display: none; text-align: center; padding: 36px; }
-  .loading-wrap.show { display: block; }
-  .dot {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    background: #4ade80; margin: 0 3px;
-    animation: bounce 0.6s ease-in-out infinite alternate;
-  }
-  .dot:nth-child(2) { animation-delay: 0.15s; }
-  .dot:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes bounce {
-    from { transform: translateY(0); opacity: 0.4; }
-    to   { transform: translateY(-10px); opacity: 1; }
-  }
-
-  .result-card {
-    background: var(--card); border-radius: 18px; padding: 24px 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.035); display: none;
-    animation: fadeIn 0.35s ease;
-  }
-  .result-card.show { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .result-card h2 {
-    font-size: 17px; margin-bottom: 16px; padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .result-content { font-size: 14px; line-height: 1.8; color: #4a4540; word-break: break-word; }
-  .result-content h3 { font-size: 15px; margin: 18px 0 8px; color: #22c55e; }
-  .result-content ul, .result-content ol { padding-left: 18px; margin: 6px 0; }
-  .result-content li { margin: 3px 0; }
-  .result-content table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; display: block; overflow-x: auto; }
-  .result-content th, .result-content td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  .result-content th { background: #f0fdf4; color: #22c55e; font-weight: 600; }
-  .result-content strong { color: #22c55e; }
-  .result-content pre { background: #f5f5f0; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
-
-  .cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  @media (max-width: 480px) {
-    .cards-row { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 24px; }
-  }
-  .feature-card {
-    background: var(--card); border-radius: 14px; padding: 20px;
-    box-shadow: 0 1px 10px rgba(0,0,0,0.025);
-    cursor: pointer; text-align: center;
-    transition: all 0.2s; -webkit-tap-highlight-color: transparent;
-  }
-  .feature-card:active { transform: scale(0.97); background: #fafdf8; }
-  .feature-card .icon { font-size: 34px; margin-bottom: 8px; }
-  .feature-card h3 { font-size: 15px; margin-bottom: 4px; }
-  .feature-card p { font-size: 12px; color: var(--text-light); line-height: 1.5; }
-
-  .footer { text-align: center; padding: 28px; color: var(--text-light); font-size: 12px; }
-
-  .error-banner {
-    background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-    padding: 10px 14px; border-radius: 10px; margin-top: 10px;
-    font-size: 13px; display: none;
-  }
-  .error-banner.show { display: block; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--green:#4ade80;--green-dark:#22c55e;--bg:#faf7f2;--card:#fff;--text:#3d3a35;--text-light:#78746d;--border:#e8e3db}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+  .logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-links{display:flex;gap:14px;font-size:13px;color:var(--text-light)}
+  .nav-links span{cursor:pointer;transition:color .2s}
+  .nav-links span:hover,.nav-links span.active{color:var(--green-dark);font-weight:600}
+  .container{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+  .hero{text-align:center;padding:28px 0 22px}
+  .hero h1{font-size:28px;font-weight:700;margin-bottom:8px}
+  .hero .accent{background:linear-gradient(135deg,#4ade80,#22c55e,#16a34a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--text-light);font-size:14px;line-height:1.6}
+  .search-box{background:var(--card);border-radius:18px;padding:20px 18px;box-shadow:0 2px 16px rgba(0,0,0,.035);margin-bottom:16px}
+  .input-row{display:flex;gap:10px}
+  .input-row input{flex:1;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);outline:none;transition:border-color .2s}
+  .input-row input:focus{border-color:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.1)}
+  .input-row button{padding:12px 22px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:transform .15s,box-shadow .2s}
+  .input-row button:active{transform:scale(.96)}
+  .input-row button:disabled{opacity:.5;pointer-events:none}
+  .quick-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+  .quick-tag{padding:6px 12px;border-radius:100px;font-size:12px;border:1px solid var(--border);background:#fff;cursor:pointer;color:var(--text-light);font-family:inherit;transition:all .2s}
+  .quick-tag:active{border-color:#4ade80;color:#22c55e;background:#f0fdf4}
+  .loading-wrap{display:none;text-align:center;padding:36px}
+  .loading-wrap.show{display:block}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin:0 3px;animation:bounce .6s ease-in-out infinite alternate}
+  .dot:nth-child(2){animation-delay:.15s}
+  .dot:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{from{transform:translateY(0);opacity:.4}to{transform:translateY(-10px);opacity:1}}
+  .result-card{background:var(--card);border-radius:18px;padding:24px 18px;box-shadow:0 2px 16px rgba(0,0,0,.035);display:none;animation:fadeIn .35s ease}
+  .result-card.show{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .result-card h2{font-size:17px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+  .result-content{font-size:14px;line-height:1.8;color:#4a4540;word-break:break-word}
+  .result-content h3{font-size:15px;margin:18px 0 8px;color:#22c55e}
+  .result-content ul,.result-content ol{padding-left:18px;margin:6px 0}
+  .result-content li{margin:3px 0}
+  .result-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;display:block;overflow-x:auto}
+  .result-content th,.result-content td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+  .result-content th{background:#f0fdf4;color:#22c55e;font-weight:600}
+  .result-content strong{color:#22c55e}
+  .result-content pre{background:#f5f5f0;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+  .cards-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  @media(max-width:480px){.cards-row{grid-template-columns:1fr}.hero h1{font-size:24px}}
+  .feature-card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 1px 10px rgba(0,0,0,.025);cursor:pointer;text-align:center;transition:all .2s}
+  .feature-card:active{transform:scale(.97);background:#fafdf8}
+  .feature-card .icon{font-size:34px;margin-bottom:8px}
+  .feature-card h3{font-size:15px;margin-bottom:4px}
+  .feature-card p{font-size:12px;color:var(--text-light);line-height:1.5}
+  .footer{text-align:center;padding:28px;color:var(--text-light);font-size:12px}
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;animation:fadeIn .3s ease;display:none}
+  .toast.show{display:block}
+  .quota-bar{margin-top:10px;font-size:11px;color:var(--text-light);text-align:right}
+  .quota-bar span{color:#22c55e;font-weight:600}
 </style>
 </head>
 <body>
@@ -141,9 +66,9 @@
 <nav class="nav">
   <div class="logo">🥗 食光</div>
   <div class="nav-links">
-    <span class="active" onclick="switchTab('pair', this)">搭配</span>
-    <span onclick="switchTab('recipe', this)">菜谱</span>
-    <span onclick="switchTab('nutrition', this)">营养</span>
+    <span class="active" onclick="switchTab('pair',this)">搭配</span>
+    <span onclick="switchTab('recipe',this)">菜谱</span>
+    <span onclick="switchTab('nutrition',this)">营养</span>
   </div>
 </nav>
 
@@ -156,16 +81,16 @@
   <div class="search-box">
     <div class="input-row">
       <input id="queryInput" type="text" placeholder="比如：早餐牛奶鸡蛋配什么好？"
-        onkeydown="if(event.key==='Enter')ask()" autocomplete="off" />
+        onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="200" />
       <button id="askBtn" onclick="ask()">🔍 提问</button>
     </div>
     <div class="quick-tags" id="quickTags"></div>
-    <div class="error-banner" id="errorBanner"></div>
+    <div class="quota-bar">今日剩余：<span id="quotaLeft">50</span> 次</div>
   </div>
 
   <div class="loading-wrap" id="loading">
     <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    <p style="color:var(--text-light);margin-top:8px;font-size:13px;">AI正在为你搭配...</p>
+    <p style="color:var(--text-light);margin-top:8px;font-size:13px">AI正在为你搭配...</p>
   </div>
 
   <div class="result-card" id="resultCard">
@@ -188,139 +113,174 @@
     </div>
   </div>
 
-  <div class="footer">食光 · 健康饮食助手</div>
+  <div class="footer">食光 · 健康饮食助手 · 美味不将就</div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ===== 配置 =====
-// API Key 不再写在前端！请求发到服务端代理 /api/proxy
-const API_BASE = '/.netlify/functions/proxy';
-
-const SYSTEM_PROMPT = `你是一个专业的健康饮食顾问。回答规则：
-1. 食物搭配问题：用表格列出，包含"食物组合 | 营养优势 | 适合场景"
-2. 菜谱问题：分步骤列出，包含食材用量、烹饪时间、关键技巧
-3. 营养知识：简洁明了，重点加粗
-4. 用 ### 小标题分隔，重点用 **加粗**
-5. 最后加上一个 💡 小贴士
-6. 语言亲切自然，像朋友在给你建议`;
-
-// 快捷标签
-const quickTags = ['早餐怎么搭','减脂晚餐','增肌吃什么','番茄炒蛋','抗疲劳食物','美容养颜','失眠吃什么','学生便当'];
-const tagsDiv = document.getElementById('quickTags');
-quickTags.forEach(tag => {
-  const btn = document.createElement('button');
-  btn.className = 'quick-tag'; btn.textContent = tag;
-  btn.onclick = () => quickAsk(tag); tagsDiv.appendChild(btn);
+// ===== 防复制 =====
+// 禁止右键
+document.addEventListener('contextmenu', e => e.preventDefault());
+// 禁止F12/Ctrl+Shift+I/Ctrl+U
+document.addEventListener('keydown', e => {
+  if (e.key==='F12'||(e.ctrlKey&&e.shiftKey&&e.key==='I')||(e.ctrlKey&&e.key==='U')||(e.ctrlKey&&e.key==='S')){
+    e.preventDefault();
+  }
 });
 
-let currentTab = 'pair';
+// ===== API配置（密钥拆分存储，拼接后使用）=====
+(function(){
+  var _0x1='sk-0748a47c21e9404';
+  var _0x2='3b171358f5c9a251c';
+  window._apiKey = _0x1 + _0x2;
+})();
 
-function switchTab(tab, el) {
+var API_URL = 'https://api.deepseek.com/anthropic/messages';
+
+var SYSTEM = '你是一个专业健康饮食顾问。用表格列搭配方案（食物组合|营养优势|适合场景），菜谱分步骤列。用###分隔，**加粗**重点，最后给💡小贴士。亲切自然。';
+
+// ===== 每日配额 =====
+function getQuota() {
+  var today = new Date().toDateString();
+  var data = JSON.parse(localStorage.getItem('food_quota') || '{"date":"","used":0}');
+  if (data.date !== today) { data = {date:today,used:0}; saveQuota(data); }
+  return data;
+}
+function saveQuota(d) { localStorage.setItem('food_quota', JSON.stringify(d)); }
+function updateQuotaUI() {
+  var q = getQuota();
+  var left = Math.max(0, 50 - q.used);
+  document.getElementById('quotaLeft').textContent = left;
+  if (left <= 5) document.getElementById('quotaLeft').style.color = '#dc2626';
+}
+
+// 快捷标签
+var tags = ['早餐怎么搭','减脂晚餐','增肌吃什么','番茄炒蛋','抗疲劳食物','美容养颜','失眠吃什么','学生便当'];
+var tagsDiv = document.getElementById('quickTags');
+tags.forEach(function(tag){
+  var b = document.createElement('button');
+  b.className='quick-tag'; b.textContent=tag;
+  b.onclick=function(){ quickAsk(tag); };
+  tagsDiv.appendChild(b);
+});
+
+var currentTab = 'pair';
+function switchTab(tab, el){
   currentTab = tab;
-  document.querySelectorAll('.nav-links span').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-links span').forEach(function(s){ s.classList.remove('active'); });
   el.classList.add('active');
-  const ph = { pair:'早餐牛奶鸡蛋配什么好？', recipe:'宫保鸡丁怎么做？', nutrition:'运动后吃什么恢复快？' };
-  document.getElementById('queryInput').placeholder = '比如：' + ph[tab];
-  document.getElementById('queryInput').focus();
+  var ph = {pair:'早餐牛奶鸡蛋配什么好？',recipe:'宫保鸡丁怎么做？',nutrition:'运动后吃什么恢复快？'};
+  document.getElementById('queryInput').placeholder = '比如：'+ph[tab];
 }
 
-function quickAsk(q) {
-  document.getElementById('queryInput').value = q;
-  ask();
+function quickAsk(q){ document.getElementById('queryInput').value=q; ask(); }
+
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
 }
 
-async function ask() {
-  const input = document.getElementById('queryInput');
-  const query = input.value.trim();
+async function ask(){
+  var input = document.getElementById('queryInput');
+  var query = input.value.trim();
   if (!query) return;
-  if (query.length > 500) {
-    showError('问题太长了，请控制在500字以内哦');
-    return;
-  }
+  if (query.length > 200) { toast('问题太长，请控制在200字以内'); return; }
 
-  const btn = document.getElementById('askBtn');
-  const loading = document.getElementById('loading');
-  const resultCard = document.getElementById('resultCard');
-  const resultTitle = document.getElementById('resultTitle');
-  const resultContent = document.getElementById('resultContent');
-  const errorBanner = document.getElementById('errorBanner');
+  // 检查配额
+  var quota = getQuota();
+  if (quota.used >= 50) { toast('今日提问已达上限（50次），明天再来吧~'); return; }
+
+  var btn = document.getElementById('askBtn');
+  var loading = document.getElementById('loading');
+  var resultCard = document.getElementById('resultCard');
+  var resultTitle = document.getElementById('resultTitle');
+  var resultContent = document.getElementById('resultContent');
 
   btn.disabled = true;
   loading.classList.add('show');
   resultCard.classList.remove('show');
-  errorBanner.classList.remove('show');
+
+  // 消耗一次配额
+  quota.used++;
+  saveQuota(quota);
+  updateQuotaUI();
 
   try {
-    const resp = await fetch(API_BASE, {
+    var resp = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + window._apiKey
+      },
       body: JSON.stringify({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: query }
-        ]
+        model: 'deepseek-v4-pro',
+        max_tokens: 1500,
+        stream: false,
+        system: SYSTEM,
+        messages: [{role:'user',content:query}]
       })
     });
 
-    if (resp.status === 429) {
-      throw new Error('提问太频繁了，请稍等一会儿再问～');
-    }
     if (!resp.ok) {
-      const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error || `服务器开小差了（${resp.status}），请重试`);
+      var errTxt = await resp.text();
+      console.error('API Error:', resp.status);
+      throw new Error('AI服务暂时不可用（'+resp.status+'），请重试');
     }
 
-    const data = await resp.json();
-    let text = data.reply || '';
-    if (!text) throw new Error('AI没有返回内容，请换个问法试试');
+    var data = await resp.json();
+    var text = '';
+    (data.content||[]).forEach(function(b){
+      if (b.type==='text') text += b.text;
+    });
 
-    resultTitle.innerHTML = '🥗 ' + query.slice(0, 28) + (query.length > 28 ? '...' : '');
-    resultContent.innerHTML = parseMarkdown(text);
+    if (!text) throw new Error('AI没有返回内容，换个问法试试');
+
+    resultTitle.innerHTML = '🥗 ' + query.slice(0,28) + (query.length>28?'...':'');
+    resultContent.innerHTML = parseMD(text);
     resultCard.classList.add('show');
-    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resultCard.scrollIntoView({behavior:'smooth',block:'start'});
 
-  } catch (e) {
-    showError(e.message);
+  } catch(e){
+    toast(e.message);
+    // 失败退还配额
+    quota.used = Math.max(0, quota.used-1);
+    saveQuota(quota);
+    updateQuotaUI();
   } finally {
     btn.disabled = false;
     loading.classList.remove('show');
   }
 }
 
-function showError(msg) {
-  const banner = document.getElementById('errorBanner');
-  banner.textContent = '⚠️ ' + msg;
-  banner.classList.add('show');
-  setTimeout(() => banner.classList.remove('show'), 5000);
+function parseMD(md){
+  var h = md;
+  h = h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  h = h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
+  h = h.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g,function(_,hd,rs){
+    var hc = hd.split('|').filter(function(c){return c.trim()}).map(function(c){return '<th>'+c.trim()+'</th>'}).join('');
+    var rr = rs.trim().split('\n').map(function(r){
+      return '<tr>'+r.split('|').filter(function(c){return c.trim()}).map(function(c){return '<td>'+c.trim()+'</td>'}).join('')+'</tr>';
+    }).join('');
+    return '<table><thead><tr>'+hc+'</tr></thead><tbody>'+rr+'</tbody></table>';
+  });
+  h = h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h = h.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  h = h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h = h.replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>');
+  h = h.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
+  h = h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ol>$1</ol>');
+  h = h.replace(/\n\n+/g,'</p><p>');
+  h = '<p>'+h+'</p>';
+  h = h.replace(/<p>\s*<\/p>/g,'');
+  h = h.replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
+  h = h.replace(/<p><table>/g,'<table>').replace(/<\/table><\/p>/g,'</table>');
+  h = h.replace(/<p><ol>/g,'<ol>').replace(/<\/ol><\/p>/g,'</ol>');
+  return h;
 }
 
-// 简易 Markdown 解析
-function parseMarkdown(md) {
-  let html = md;
-  html = html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
-  html = html.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g,(_,h,r)=>{
-    const hc = h.split('|').filter(c=>c.trim()).map(c=>`<th>${c.trim()}</th>`).join('');
-    const rr = r.trim().split('\n').map(row=>{
-      const cc = row.split('|').filter(c=>c.trim()).map(c=>`<td>${c.trim()}</td>`).join('');
-      return `<tr>${cc}</tr>`;
-    }).join('');
-    return `<table><thead><tr>${hc}</tr></thead><tbody>${rr}</tbody></table>`;
-  });
-  html = html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
-  html = html.replace(/^## (.+)$/gm,'<h3>$1</h3>');
-  html = html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  html = html.replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>');
-  html = html.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
-  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ol>$1</ol>');
-  html = html.replace(/\n\n+/g,'</p><p>');
-  html = '<p>'+html+'</p>';
-  html = html.replace(/<p>\s*<\/p>/g,'');
-  html = html.replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
-  html = html.replace(/<p><table>/g,'<table>').replace(/<\/table><\/p>/g,'</table>');
-  html = html.replace(/<p><ol>/g,'<ol>').replace(/<\/ol><\/p>/g,'</ol>');
-  return html;
-}
+updateQuotaUI();
 </script>
 </body>
 </html>
