@@ -87,6 +87,13 @@
   .result-content strong{color:var(--gd)}
   .result-content pre{background:#f5f5f0;padding:10px;border-radius:8px;overflow-x:auto;font-size:13px}
 
+  /* 左栏结果区：双列网格，新查询左右并排 */
+  #resultsArea{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #resultsArea .result-card{margin-bottom:0}
+  #resultsArea .results-empty{grid-column:1/-1}
+  @media(max-width:550px){
+    #resultsArea{grid-template-columns:1fr}
+  }
   /* 左栏结果为空提示 */
   .results-empty{text-align:center;padding:40px 20px;color:var(--tl);font-size:13px}
 
