@@ -413,12 +413,14 @@ async function ask(){
                 document.getElementById('resultCard').classList.add('show');
                 document.getElementById('favBtn').textContent='❤️';
                 pauseBtn.style.display='';pauseBtn.textContent='⏸️';}
-              if(!streamPaused){currentReply=reply;document.getElementById('resultContent').innerHTML=parseMD(reply);}
+              if(!streamPaused){currentReply=reply;document.getElementById('resultContent').innerHTML=streamRender(reply);}
             }
           }catch(e){}
         }
       }
       if(!reply)throw new Error('无返回内容');
+      // 流式完成，用完整markdown重新渲染
+      document.getElementById('resultContent').innerHTML=parseMD(reply);
       ok=true;break;
     }catch(e){
       if(e.name==='AbortError'&&!streamStopped&&attempt===0){continue;} // 超时→重试
@@ -427,6 +429,8 @@ async function ask(){
         else{toast('响应超时，请稍后重试');}
       }else{toast(e.message);}
       if(!streamStopped){qu.u=Math.max(0,qu.u-1);localStorage.setItem('fq',JSON.stringify(qu));}
+      // 如果已有一部分内容，保留不隐藏
+      if(currentReply){document.getElementById('resultContent').innerHTML=parseMD(currentReply);}
       break;
     }
   }
@@ -492,12 +496,13 @@ async function genWeekPlan(q){
         try{var evt=JSON.parse(jsonStr);
           if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){
             reply+=evt.delta.text;
-            if(!streamPaused){document.getElementById('weekContent').innerHTML=parseMD(reply);}
+            if(!streamPaused){document.getElementById('weekContent').innerHTML=streamRender(reply);}
           }
         }catch(e){}
       }
     }
     if(!reply)throw new Error('无返回内容');
+    document.getElementById('weekContent').innerHTML=parseMD(reply);
     currentQuery=q;currentReply=reply;
     switchTab('week',document.querySelectorAll('.btm-tab')[1]);
     toast('周食谱已生成 ✅','good');
@@ -538,12 +543,13 @@ async function calLookup(){
             if(!started){started=true;load.classList.remove('show');
               document.getElementById('calTitle').innerHTML='🔥 '+esc(document.getElementById('calInput').value.trim())+' 营养数据';
               document.getElementById('calResult').classList.add('show');}
-            document.getElementById('calContent').innerHTML=parseMD(reply);
+            document.getElementById('calContent').innerHTML=streamRender(reply);
           }
         }catch(e){}
       }
     }
     if(!reply)throw new Error('无返回内容');
+    document.getElementById('calContent').innerHTML=parseMD(reply);
   }catch(e){
     if(e.name==='AbortError'){toast('请求超时');}
     else{toast(e.message);}
@@ -587,7 +593,17 @@ function shareResult(){
   toast('长按图片即可保存分享 📱','good');
 }
 
-// ===== Markdown解析 =====
+// ===== 流式安全渲染（不用表格解析，避免半成品markdown损坏DOM） =====
+function streamRender(t){
+  var h=t;h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/\n/g,'<br>');
+  return h;
+}
+
+// ===== Markdown解析（完整版，生成完成后调用） =====
 function parseMD(md){
   var h=md;h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   h=h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
