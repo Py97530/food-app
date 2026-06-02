@@ -1,6 +1,6 @@
 // 食光 PWA Service Worker
 // 每次部署记得改版本号（改这里就行）
-var CACHE = 'shiguang-v3';
+var CACHE = 'shiguang-v4';
 
 // 安装时立即接管页面（不等旧 SW 释放）
 self.addEventListener('install', function(e) {

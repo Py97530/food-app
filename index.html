@@ -1135,6 +1135,7 @@ function addResultCard(q){
     +'<button class="act-btn" id="pauseBtn-'+cardId+'" onclick="togglePause()" title="暂停/继续" style="display:none">⏸️</button>'
     +'<button class="act-btn" id="favBtn-'+cardId+'" onclick="toggleCardFav(\''+cardId+'\')" title="收藏">❤️</button>'
     +'<button class="act-btn" onclick="shareCard(\''+cardId+'\')" title="分享">📤</button>'
+    +'<button class="act-btn" onclick="openFeedbackForCard(\''+cardId+'\')" title="反馈">📝</button>'
     +'<button class="act-btn" onclick="closeCard(\''+cardId+'\')" title="关闭" style="color:var(--color-text-muted)">✕</button>'
     +'</div></div>'
     +'<div class="result-content" id="content-'+cardId+'"></div>';
@@ -1476,9 +1477,92 @@ function parseMD(md){
 
 // ===== 初始化 =====
 renderIngredientMarket(); renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
+// ===== 反馈系统 =====
+var feedbackType='建议', feedbackRefId=null;
+function selectFbType(btn,type){
+  feedbackType=type;
+  document.querySelectorAll('.fb-type-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+function openFeedback(){
+  feedbackRefId=null;
+  document.getElementById('feedbackRef').style.display='none';
+  document.getElementById('feedbackTitle').textContent='💬 反馈建议';
+  document.getElementById('feedbackMsg').value='';
+  document.getElementById('feedbackContact').value='';
+  document.getElementById('feedbackDone').style.display='none';
+  document.getElementById('feedbackSubmit').style.display='';
+  document.getElementById('feedbackOverlay').classList.add('show');
+}
+function openFeedbackForCard(cardId){
+  openFeedback();
+  feedbackRefId=cardId;
+  var d=cardData[cardId];
+  if(d){
+    document.getElementById('feedbackRef').textContent='相关问题：「'+esc(d.q||'')+'」';
+    document.getElementById('feedbackRef').style.display='';
+  }
+}
+function closeFeedback(){
+  document.getElementById('feedbackOverlay').classList.remove('show');
+}
+function submitFeedback(){
+  var msg=document.getElementById('feedbackMsg').value.trim();
+  if(!msg){alert('请填写反馈内容');return;}
+  var btn=document.getElementById('feedbackSubmit');
+  btn.disabled=true;btn.textContent='提交中…';
+  var data=new FormData();
+  data.append('access_key','YOUR_WEB3FORMS_KEY');
+  data.append('subject','[食光反馈] '+feedbackType);
+  data.append('message','类型：'+feedbackType+'\n内容：'+msg+'\n联系方式：'+(document.getElementById('feedbackContact').value||'未填写')+'\n来源：'+(feedbackRefId?('问答'+feedbackRefId):'直接反馈'));
+  data.append('from_name','食光用户');
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:data})
+    .then(function(r){return r.json();})
+    .then(function(r){
+      if(r.success){
+        document.getElementById('feedbackSubmit').style.display='none';
+        document.getElementById('feedbackDone').style.display='';
+        setTimeout(closeFeedback,2000);
+      }else{throw new Error('提交失败');}
+    }).catch(function(){
+      btn.disabled=false;btn.textContent='📨 提交反馈';
+      // 备选：用 mailto 兜底
+      var subject=encodeURIComponent('[食光反馈] '+feedbackType);
+      var body=encodeURIComponent('反馈内容：'+msg+'\n\n（请在此补充更多信息）');
+      window.open('mailto:17301@qq.com?subject='+subject+'&body='+body);
+    });
+}
+
+// ===== 更新日志 =====
+var CHANGELOG=[
+  {v:'v5.1',date:'2026-06',type:'minor',title:'反馈系统 + 更新日志',detail:'新增站内反馈表单、更新日志入口、每个回答可单独反馈。优化用户体验闭环。'},
+  {v:'v5.0',date:'2026-06-02',type:'major',title:'食材市场首页',detail:'扔掉分类标签，全新食材网格首页。53种食材，5大分类，点击食材自动生成推荐问题。AI自动识别问题领域，不再需要手动切换。新增交叉纹理背景、类目彩色边框、卡片动画。'},
+  {v:'v4.0',date:'2026-06-02',type:'major',title:'鲜活自然配色',detail:'全面更换设计方向：番茄珊瑚主色+牛油果绿辅助色+暖奶油中性色系。9阶设计令牌系统，8px基线网格，渐变按钮+毛玻璃效果。'},
+  {v:'v3.0',date:'2026-06-01',type:'major',title:'有机自然设计',detail:'1200+行CSS全面重新设计，建立完整设计系统。统一组件风格，改进排版层级和可读性。'},
+  {v:'v2.7',date:'v2.7',type:'minor',title:'双栏布局',detail:'搜索与热量速查左右并排，支持双列结果网格，多卡片不消失。'},
+  {v:'v2.6',date:'v2.6',type:'minor',title:'PWA支持',detail:'支持安装到手机桌面，离线也能打开。'},
+  {v:'v2.5',date:'v2.5',type:'minor',title:'安全代理',detail:'引入服务器端API代理，API Key从浏览器移除。支持代理/直连双模式。'},
+  {v:'v2.4',date:'v2.4',type:'minor',title:'流式输出升级',detail:'切换更快的AI模型，10秒超时+自动重试，实时渲染回答。'},
+  {v:'v2.3',date:'v2.3',type:'minor',title:'流式输出',detail:'打字机式实时显示AI回答，大幅提升体验。'},
+  {v:'v2.2',date:'v2.2',type:'minor',title:'忌口设置',detail:'新增忌口设置功能，AI自动排除不吃的食材。'},
+  {v:'v2.1',date:'v2.1',type:'minor',title:'食物相克',detail:'新增食物相克检查：中毒反应+危险评级+急救措施。'},
+  {v:'v1.0',date:'2026',type:'major',title:'食光诞生',detail:'首个可用版本：AI问答+基础UI+GitHub Pages部署。'}
+];
+function openChangelog(){
+  var c=document.getElementById('changelogContent');
+  c.innerHTML=CHANGELOG.map(function(item){
+    var cls=item.type==='major'?'cl-v-major':'cl-v-minor';
+    return '<div class="cl-item"><span class="cl-version '+cls+'">'+item.v+'</span><span class="cl-date">'+item.date+'</span><div class="cl-title">'+item.title+'</div><div class="cl-detail">'+item.detail+'</div></div>';
+  }).join('');
+  document.getElementById('changelogOverlay').classList.add('show');
+}
+function closeChangelog(){
+  document.getElementById('changelogOverlay').classList.remove('show');
+}
 </script>
 <script>
 // 注册 Service Worker（PWA）
+
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/food-app/sw.js').then(function(){
     console.log('SW registered');
