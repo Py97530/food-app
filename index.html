@@ -1509,28 +1509,12 @@ function closeFeedback(){
 function submitFeedback(){
   var msg=document.getElementById('feedbackMsg').value.trim();
   if(!msg){alert('请填写反馈内容');return;}
-  var btn=document.getElementById('feedbackSubmit');
-  btn.disabled=true;btn.textContent='提交中…';
-  var data=new FormData();
-  data.append('access_key','YOUR_WEB3FORMS_KEY');
-  data.append('subject','[食光反馈] '+feedbackType);
-  data.append('message','类型：'+feedbackType+'\n内容：'+msg+'\n联系方式：'+(document.getElementById('feedbackContact').value||'未填写')+'\n来源：'+(feedbackRefId?('问答'+feedbackRefId):'直接反馈'));
-  data.append('from_name','食光用户');
-  fetch('https://api.web3forms.com/submit',{method:'POST',body:data})
-    .then(function(r){return r.json();})
-    .then(function(r){
-      if(r.success){
-        document.getElementById('feedbackSubmit').style.display='none';
-        document.getElementById('feedbackDone').style.display='';
-        setTimeout(closeFeedback,2000);
-      }else{throw new Error('提交失败');}
-    }).catch(function(){
-      btn.disabled=false;btn.textContent='📨 提交反馈';
-      // 备选：用 mailto 兜底
-      var subject=encodeURIComponent('[食光反馈] '+feedbackType);
-      var body=encodeURIComponent('反馈内容：'+msg+'\n\n（请在此补充更多信息）');
-      window.open('mailto:17301@qq.com?subject='+subject+'&body='+body);
-    });
+  document.getElementById('feedbackSubmit').style.display='none';
+  document.getElementById('feedbackDone').style.display='';
+  setTimeout(closeFeedback,2000);
+  var subj=encodeURIComponent('[食光反馈] '+feedbackType);
+  var body=encodeURIComponent('类型：'+feedbackType+'\n内容：'+msg+'\n联系方式：'+(document.getElementById('feedbackContact').value||'未填写')+'\n来源：'+(feedbackRefId?('问答'+feedbackRefId):'直接反馈'));
+  window.open('mailto:17301@qq.com?subject='+subj+'&body='+body);
 }
 
 // ===== 更新日志 =====
