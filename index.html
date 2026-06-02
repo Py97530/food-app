@@ -198,25 +198,168 @@
   }
   .quick-tag:active{transform:scale(.94)}
 
-  /* ---------- CATEGORY TABS ---------- */
-  .cat-tabs{
-    display:flex;gap:var(--space-2);margin-bottom:var(--space-4);
-    background:var(--color-surface);border-radius:var(--radius-lg);
-    padding:var(--space-2);box-shadow:var(--shadow-xs);
-    border:1.5px solid var(--color-border);
+  /* ---------- BODY TEXTURE ---------- */
+  body::before{
+    content:;position:fixed;inset:0;z-index:-1;opacity:.03;pointer-events:none;
+    background-image:
+      repeating-linear-gradient(45deg,var(--p-400) 0px,var(--p-400) 1px,transparent 1px,transparent 14px),
+      repeating-linear-gradient(-45deg,var(--p-400) 0px,var(--p-400) 1px,transparent 1px,transparent 14px),
+      radial-gradient(ellipse 600px 400px at 85% 5%,var(--p-100) 0%,transparent 70%),
+      radial-gradient(ellipse 500px 300px at 15% 90%,var(--a-50) 0%,transparent 70%);
   }
-  .cat-tab{
-    flex:1;text-align:center;padding:var(--space-2) var(--space-2);
-    border-radius:var(--radius-md);font-size:var(--text-sm);
-    cursor:pointer;border:none;background:none;
-    color:var(--color-text-secondary);font-family:inherit;
-    font-weight:600;transition:all var(--ease-bounce);
+
+  /* ---------- INGREDIENT MARKET ---------- */
+  .ingredient-market{margin-bottom:var(--space-4)}
+  .market-header{
+    display:flex;align-items:center;gap:var(--space-3);
+    margin-bottom:var(--space-4);
   }
-  .cat-tab:hover{color:var(--p-600);background:var(--p-50)}
-  .cat-tab.active{
+  .market-header-icon{
+    font-size:2.2rem;line-height:1;
+    animation:gentleFloat 3s ease-in-out infinite;
+  }
+  .market-header-text h2{
+    font-size:var(--text-xl);font-weight:800;color:var(--color-text);
+    letter-spacing:-0.01em;
+  }
+  .market-header-text p{
+    font-size:var(--text-sm);color:var(--color-text-muted);margin-top:2px;
+  }
+  .market-header-text::after{
+    content:"";display:block;width:40px;height:3px;margin-top:var(--space-1);
+    border-radius:var(--radius-full);
+    background:linear-gradient(90deg,var(--p-500),var(--a-500),var(--warning));
+  }
+
+  /* Trending strip */
+  .trending-strip{
+    display:flex;gap:var(--space-2);overflow-x:auto;
+    padding:var(--space-2) 0 var(--space-3);
+    scrollbar-width:none;-ms-overflow-style:none;
+  }
+  .trending-strip::-webkit-scrollbar{display:none}
+  .trending-item{
+    flex-shrink:0;padding:var(--space-1) var(--space-3);
+    background:linear-gradient(135deg,var(--p-50),var(--p-100));
+    border-radius:var(--radius-full);
+    font-size:var(--text-xs);font-weight:600;color:var(--p-700);
+    white-space:nowrap;cursor:pointer;
+    transition:all var(--ease-bounce);
+    border:1.5px solid transparent;
+  }
+  .trending-item:hover{
     background:linear-gradient(135deg,var(--p-500),var(--p-600));
-    color:#fff;font-weight:700;
-    box-shadow:0 2px 10px rgba(255,107,74,.3);
+    color:#fff;transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(255,107,74,.25);
+  }
+
+  /* Category sections */
+  .ingredient-category{margin-bottom:var(--space-5)}
+  .category-label{
+    display:flex;align-items:center;gap:var(--space-2);
+    font-size:var(--text-sm);font-weight:700;color:var(--color-text-secondary);
+    margin-bottom:var(--space-3);padding-left:var(--space-1);
+  }
+  .category-label .cat-icon{font-size:1.1rem}
+
+  /* Ingredient grid & cards */
+  .category-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);
+  }
+  .ingredient-card{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:var(--space-4) var(--space-2);
+    background:var(--color-surface);
+    border-radius:var(--radius-lg);
+    border:1.5px solid var(--color-border);
+    cursor:pointer;
+    transition:transform var(--ease-bounce),box-shadow var(--ease-out),border-color var(--ease-out);
+    box-shadow:var(--shadow-xs);
+    animation:cardPopIn .4s var(--ease-bounce) both;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .ingredient-card:active{
+    transform:scale(.92);box-shadow:var(--shadow-md);
+    border-color:var(--p-300);
+  }
+  .ingredient-card .ing-emoji{
+    font-size:2.2rem;line-height:1;margin-bottom:var(--space-1);
+    animation:gentleFloat 3.5s ease-in-out infinite;
+  }
+  .ingredient-card .ing-name{
+    font-size:var(--text-sm);font-weight:700;color:var(--color-text);
+  }
+  .ingredient-card .ing-tags{
+    font-size:.6rem;color:var(--color-text-muted);margin-top:2px;
+    text-align:center;line-height:1.3;
+  }
+  /* Category accent borders */
+  .ingredient-category[data-cat=vegetables] .ingredient-card{border-top:3px solid var(--a-400)}
+  .ingredient-category[data-cat=proteins] .ingredient-card{border-top:3px solid var(--p-400)}
+  .ingredient-category[data-cat=fruits] .ingredient-card{border-top:3px solid var(--warning)}
+  .ingredient-category[data-cat=grains] .ingredient-card{border-top:3px solid #d4a853}
+  .ingredient-category[data-cat=seasoning] .ingredient-card{border-top:3px solid var(--p-300)}
+
+  @keyframes gentleFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-5px)}
+  }
+  @keyframes cardPopIn{
+    from{opacity:0;transform:translateY(14px) scale(.9)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+  @keyframes slideInRight{
+    from{opacity:0;transform:translateX(20px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+
+  /* Filter empty state */
+  .filter-empty{
+    text-align:center;padding:var(--space-8) var(--space-5);
+  }
+  .filter-empty-icon{font-size:3rem;margin-bottom:var(--space-3)}
+  .filter-empty p{
+    color:var(--color-text-muted);font-size:var(--text-base);margin-bottom:var(--space-4);
+  }
+  .filter-empty button{
+    padding:var(--space-3) var(--space-6);
+    background:linear-gradient(135deg,var(--p-500),var(--p-600));
+    color:#fff;border:none;border-radius:var(--radius-full);
+    font-size:var(--text-base);font-weight:700;cursor:pointer;font-family:inherit;
+    box-shadow:0 2px 8px rgba(255,107,74,.25);
+    transition:all var(--ease-bounce);
+  }
+  .filter-empty button:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(255,107,74,.35)}
+
+  /* Question sheet modal */
+  .question-sheet .modal-sheet{padding-bottom:var(--space-8)}
+  .question-sheet-ingredient{
+    text-align:center;padding:var(--space-6) 0 var(--space-2);
+  }
+  .question-sheet-ingredient .ing-emoji{font-size:3.5rem;line-height:1}
+  .question-sheet-ingredient .ing-name{
+    font-size:var(--text-xl);font-weight:800;margin-top:var(--space-2);
+  }
+  .question-chip{
+    display:block;width:100%;padding:var(--space-4) var(--space-4);
+    margin-bottom:var(--space-2);
+    background:var(--color-bg);border:1.5px solid var(--color-border);
+    border-radius:var(--radius-md);
+    font-size:var(--text-base);font-family:inherit;
+    cursor:pointer;text-align:left;
+    transition:all var(--ease-bounce);
+    color:var(--color-text);
+  }
+  .question-chip:hover{
+    background:var(--p-50);border-color:var(--p-300);
+    transform:translateX(4px);
+  }
+  .question-chip .chip-domain{
+    font-size:var(--text-xs);color:var(--color-text-muted);
+    display:inline-block;padding:2px 8px;
+    background:var(--n-200);border-radius:var(--radius-full);
+    margin-right:var(--space-2);
   }
 
   /* ---------- LOADING ---------- */
@@ -487,18 +630,28 @@
   <div class="dual-panel" id="dualPanel">
     <!-- 左栏：AI 查询 -->
     <div class="panel-left">
-      <!-- 分类切换 -->
-      <div class="cat-tabs">
-        <button class="cat-tab active" onclick="setMode('general',this)">🍽️ 通用</button>
-        <button class="cat-tab" onclick="setMode('disease',this)">🏥 疾病饮食</button>
-        <button class="cat-tab" onclick="setMode('recipe',this)">👨‍🍳 菜谱</button>
-        <button class="cat-tab" onclick="setMode('toxic',this)">⚠️ 食物相克</button>
+      <!-- 食材市场首页 -->
+      <div class="ingredient-market" id="ingredientMarket">
+        <div class="market-header">
+          <div class="market-header-icon">🥬</div>
+          <div class="market-header-text">
+            <h2>今日市场</h2>
+            <p>选一个食材，看看能做什么</p>
+          </div>
+        </div>
+        <div class="trending-strip" id="trendingStrip"></div>
+        <div class="ingredient-grid" id="ingredientGrid"></div>
+        <div class="filter-empty" id="filterEmpty" style="display:none">
+          <div class="filter-empty-icon">🔍</div>
+          <p>没有匹配的食材</p>
+          <button onclick="askFromSearch()">💬 直接提问</button>
+        </div>
       </div>
 
       <!-- 搜索 -->
       <div class="search-box">
         <div class="input-row">
-          <input id="queryInput" type="text" placeholder="比如：糖尿病能吃什么？" onkeydown="if(event.key==='Enter')ask()" autocomplete="off" maxlength="300" />
+          <input id="queryInput" type="text" placeholder="搜索食材或直接输入问题…" onkeydown="if(event.key==='Enter')ask()" oninput="filterIngredients(this.value)" autocomplete="off" maxlength="300" />
           <button id="askBtn" onclick="ask()">🔍 提问</button>
         </div>
         <div class="quick-tags" id="quickTags"></div>
@@ -587,6 +740,14 @@
   </div>
 </div>
 
+<!-- 食材问题弹窗 -->
+<div class="modal-overlay" id="questionOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-sheet question-sheet">
+    <button class="modal-close" onclick="document.getElementById('questionOverlay').classList.remove('show')">✕</button>
+    <div id="questionBody"></div>
+  </div>
+</div>
+
 <!-- 分享预览 -->
 <div class="share-overlay" id="shareOverlay" onclick="this.classList.remove('show')">
   <img id="shareImg" src="" alt="分享卡片" />
@@ -607,7 +768,7 @@ var WORKER_URL='';
 var USE_PROXY=!!WORKER_URL;
 if(USE_PROXY){var API=WORKER_URL;}
 else{(function(){var a='sk-0748a47c21e9404',b='3b171358f5c9a251c';window._K=a+b;})();var API='https://api.deepseek.com/anthropic/messages';}
-var mode='general', currentQuery='', currentReply='', currentFav=false, activeCardId=null;
+var mode='auto', currentQuery='', currentReply='', currentFav=false, activeCardId=null;
 var calQuery='', calReply='';
 var cardCounter=0, cardData={}; // {cardId: {q, r, fav}}
 
@@ -670,14 +831,198 @@ function switchTab(t,el){
   }
 }
 
-function setMode(m,el){
-  mode=m;
-  document.querySelectorAll('.cat-tab').forEach(function(b){b.classList.remove('active');});
-  el.classList.add('active');
-  var ph={general:'早餐牛奶鸡蛋配什么好？',disease:'糖尿病能吃什么不能吃什么？',recipe:'番茄炒蛋怎么做？',toxic:'虾和维生素C能一起吃吗？'};
-  document.getElementById('queryInput').placeholder='比如：'+ph[m];
-  var tags={general:['早餐搭配','减脂晚餐','增肌吃什么','美容养颜','失眠食疗'],disease:['糖尿病饮食','高血压食谱','痛风忌口','孕期营养','胃病养胃'],recipe:['番茄炒蛋','红烧肉','减脂餐','快手早餐','煲汤大全'],toxic:['虾+维C','柿子+螃蟹','菠菜+豆腐','牛肉+红糖','海鲜+啤酒']};
-  renderTags(tags[m]);
+// ===== 食材数据 =====
+var INGREDIENT_CATEGORIES=[
+  {id:'vegetables',label:'时蔬鲜',icon:'🥬',items:[
+    {name:'番茄',emoji:'🍅',tags:['抗癌','美白','减脂']},
+    {name:'黄瓜',emoji:'🥒',tags:['低卡','补水','凉拌']},
+    {name:'菠菜',emoji:'🥬',tags:['补铁','叶酸','素食']},
+    {name:'西兰花',emoji:'🥦',tags:['高纤维','抗癌','增肌']},
+    {name:'胡萝卜',emoji:'🥕',tags:['护眼','维A','炖汤']},
+    {name:'白菜',emoji:'🥬',tags:['低卡','百搭','清炒']},
+    {name:'生菜',emoji:'🥗',tags:['沙拉','低卡','爽口']},
+    {name:'芹菜',emoji:'🥬',tags:['降压','高纤维','凉拌']},
+    {name:'茄子',emoji:'🍆',tags:['抗氧化','低脂','红烧']},
+    {name:'青椒',emoji:'🫑',tags:['维C','配色','炒肉']},
+    {name:'土豆',emoji:'🥔',tags:['主食替代','饱腹','炖菜']},
+    {name:'洋葱',emoji:'🧅',tags:['降血脂','提味','炒蛋']},
+    {name:'冬瓜',emoji:'🍈',tags:['利尿','消肿','煲汤']},
+    {name:'南瓜',emoji:'🎃',tags:['养胃','低GI','蒸煮']},
+    {name:'蘑菇',emoji:'🍄',tags:['菌菇','鲜美','低脂']}
+  ]},
+  {id:'proteins',label:'肉蛋豆',icon:'🍗',items:[
+    {name:'鸡蛋',emoji:'🥚',tags:['高蛋白','早餐','全能']},
+    {name:'鸡胸肉',emoji:'🍗',tags:['低脂','增肌','减脂餐']},
+    {name:'牛肉',emoji:'🥩',tags:['补铁','高蛋白','增肌']},
+    {name:'猪肉',emoji:'🥓',tags:['家常','百搭','红烧']},
+    {name:'鱼',emoji:'🐟',tags:['Omega3','清蒸','健脑']},
+    {name:'虾',emoji:'🦐',tags:['高蛋白','低脂','鲜美']},
+    {name:'豆腐',emoji:'🧈',tags:['植物蛋白','低卡','百搭']},
+    {name:'豆浆',emoji:'🥛',tags:['植物奶','早餐','补钙']},
+    {name:'鸡腿',emoji:'🍗',tags:['高蛋白','卤制','嫩滑']},
+    {name:'排骨',emoji:'🦴',tags:['补钙','煲汤','红烧']},
+    {name:'三文鱼',emoji:'🐠',tags:['Omega3','刺身','煎烤']},
+    {name:'牛奶',emoji:'🥛',tags:['补钙','早餐','助眠']}
+  ]},
+  {id:'fruits',label:'水果',icon:'🍎',items:[
+    {name:'苹果',emoji:'🍎',tags:['低GI','饱腹','日常']},
+    {name:'香蕉',emoji:'🍌',tags:['补钾','运动前','通便']},
+    {name:'橙子',emoji:'🍊',tags:['维C','美白','免疫力']},
+    {name:'葡萄',emoji:'🍇',tags:['抗氧化','补血','护心']},
+    {name:'西瓜',emoji:'🍉',tags:['补水','低卡','夏季']},
+    {name:'草莓',emoji:'🍓',tags:['维C','美容','低糖']},
+    {name:'蓝莓',emoji:'🫐',tags:['花青素','护眼','抗氧化']},
+    {name:'猕猴桃',emoji:'🥝',tags:['维C之王','通便','美白']},
+    {name:'柠檬',emoji:'🍋',tags:['维C','泡水','调味']},
+    {name:'牛油果',emoji:'🥑',tags:['健康脂肪','沙拉','饱腹']}
+  ]},
+  {id:'grains',label:'主食',icon:'🍚',items:[
+    {name:'米饭',emoji:'🍚',tags:['主食','碳水','基础']},
+    {name:'面条',emoji:'🍜',tags:['快手','百变','主食']},
+    {name:'燕麦',emoji:'🥣',tags:['高纤维','早餐','降脂']},
+    {name:'面包',emoji:'🍞',tags:['早餐','便捷','全麦好']},
+    {name:'红薯',emoji:'🍠',tags:['粗粮','低GI','饱腹']},
+    {name:'玉米',emoji:'🌽',tags:['粗粮','高纤维','水煮']},
+    {name:'糙米',emoji:'🍚',tags:['低GI','高纤维','减脂']},
+    {name:'小米',emoji:'🌾',tags:['养胃','煮粥','易消化']}
+  ]},
+  {id:'seasoning',label:'调料',icon:'🧄',items:[
+    {name:'蒜',emoji:'🧄',tags:['杀菌','提味','防癌']},
+    {name:'姜',emoji:'🫚',tags:['驱寒','去腥','暖身']},
+    {name:'辣椒',emoji:'🌶️',tags:['开胃','维C','增代谢']},
+    {name:'酱油',emoji:'🫙',tags:['调味','上色','基础']},
+    {name:'醋',emoji:'🧴',tags:['开胃','解腻','降糖']},
+    {name:'蜂蜜',emoji:'🍯',tags:['天然甜味','润喉','美容']},
+    {name:'花椒',emoji:'🫑',tags:['麻味','川菜','去腥']},
+    {name:'芝麻',emoji:'🫘',tags:['补钙','增香','点缀']}
+  ]}
+];
+
+var QUESTION_TEMPLATES={
+  nutrition:['{name}的营养价值与健康功效？','每天吃{name}的推荐量是多少？','{name}对哪些人群特别好？','{name}含有哪些维生素和矿物质？'],
+  recipe:['{name}的家常做法有哪些？','{name}搭配什么食材最美味？','适合新手的{name}简单做法','{name}怎么做才好吃？'],
+  disease:['糖尿病人能吃{name}吗？','高血压患者吃{name}要注意什么？','{name}适合减脂期吃吗？怎么吃？','胃不好能吃{name}吗？'],
+  combo:['{name}不能和什么一起吃？','{name}的搭配禁忌有哪些？','{name}和什么食物相克？']
+};
+
+function getSuggestedQuestions(ing){
+  var qs=[],n=ing.name;
+  qs.push({text:QUESTION_TEMPLATES.nutrition[0].replace('{name}',n),domain:'营养'});
+  qs.push({text:QUESTION_TEMPLATES.recipe[0].replace('{name}',n),domain:'菜谱'});
+  qs.push({text:QUESTION_TEMPLATES.recipe[1].replace('{name}',n),domain:'搭配'});
+  qs.push({text:QUESTION_TEMPLATES.disease[0].replace('{name}',n),domain:'疾病'});
+  qs.push({text:QUESTION_TEMPLATES.disease[2].replace('{name}',n),domain:'减脂'});
+  qs.push({text:QUESTION_TEMPLATES.combo[0].replace('{name}',n),domain:'相克'});
+  return qs;
+}
+
+// ===== 领域检测 =====
+function detectDomains(query){
+  var domains=[],q=query.toLowerCase();
+  if(/做法|菜谱|怎么[做煮炖炒蒸炸烤焖卤煸]|烹饪|配方|步骤|食材|怎么做|好吃/.test(q)) domains.push('recipe');
+  if(/糖尿|血压|痛风|减脂|增肌|孕期|胃[病炎痛]|肾病|胆[囊固醇]|过敏|便秘|失眠|减肥/.test(q)) domains.push('disease');
+  if(/相克|不能.?[同和一起]|禁忌|搭[配对]|中毒|反应|谣言|不能吃/.test(q)) domains.push('toxic');
+  if(/营养|功效|好处|成分|维生|矿物|蛋白|脂肪|碳水|热量|含量|适合|推荐|怎么[吃喝]/.test(q)) domains.push('nutrition');
+  if(domains.length===0) domains.push('general');
+  return domains;
+}
+
+// ===== 动态系统提示词 =====
+var BASE_SYS='你是「食光」AI营养师，兼具临床营养医师、资深厨师、食品安全专家三重角色。回答用中文，亲切自然，像朋友聊天。使用表格(组合|营养优势|适合场景)、**加粗**重点、###分节。';
+var DOMAIN_MODIFIERS={
+  general:'综合回答：先分析营养价值，再给推荐做法，最后注意事项。',
+  nutrition:'重点：营养成分分析+健康功效+适宜/不适宜人群+每日建议摄入量。如涉及疾病需注明「请遵医嘱」。',
+  recipe:'重点：详细做法。列出食材用量、分步骤说明、烹饪时间、火候技巧。用有序列表。',
+  disease:'重点：针对特定疾病/健康状况的饮食建议。列出✅推荐+❌禁忌+📋一日参考。反复强调「必须遵医嘱，本文仅供参考」。',
+  toxic:'重点：判断食物组合是否安全。格式：结论(一句话)+ 原因(化学反应/中毒机制)+ 危险程度(⭐1-5)+ 急救措施+ 安全建议。如果是谣言要明确辟谣。'
+};
+function buildSystemPrompt(query){
+  var domains=detectDomains(query);
+  var modifiers=domains.map(function(d){return DOMAIN_MODIFIERS[d];});
+  return BASE_SYS+' 本次回答重点：'+modifiers.join(' ');
+}
+
+// ===== 食材市场渲染 =====
+function renderIngredientMarket(){
+  var grid=document.getElementById('ingredientGrid');
+  var html='',idx=0;
+  INGREDIENT_CATEGORIES.forEach(function(cat){
+    html+='<div class="ingredient-category" data-cat="'+cat.id+'">';
+    html+='<div class="category-label"><span class="cat-icon">'+cat.icon+'</span>'+cat.label+'</div>';
+    html+='<div class="category-grid">';
+    cat.items.forEach(function(item){
+      html+='<div class="ingredient-card" data-name="'+item.name+'" style="animation-delay:'+(idx%15*40)+'ms" onclick="selectIngredient(\''+item.name+'\',\''+item.emoji+'\')">';
+      html+='<span class="ing-emoji" style="animation-delay:'+(idx%10*300)+'ms">'+item.emoji+'</span>';
+      html+='<span class="ing-name">'+item.name+'</span>';
+      html+='<span class="ing-tags">'+item.tags.join('·')+'</span>';
+      html+='</div>';
+      idx++;
+    });
+    html+='</div></div>';
+  });
+  grid.innerHTML=html;
+  // 热门食材横向滚动条
+  var trending=['🍅番茄','🥚鸡蛋','🥦西兰花','🍗鸡胸肉','🍎苹果','🍠红薯','🥑牛油果','🍄蘑菇','🐟鱼','🥬菠菜'];
+  var strip=document.getElementById('trendingStrip');
+  strip.innerHTML=trending.map(function(t,i){
+    return '<span class="trending-item" style="animation-delay:'+(i*60)+'ms" onclick="selectIngredient(\''+t.slice(1)+'\',\''+t.charAt(0)+'\')">'+t+'</span>';
+  }).join('');
+}
+
+// ===== 食材筛选 =====
+function filterIngredients(q){
+  var cards=document.querySelectorAll('.ingredient-card');
+  var categories=document.querySelectorAll('.ingredient-category');
+  var empty=document.getElementById('filterEmpty');
+  var market=document.getElementById('ingredientMarket');
+  if(!q||q.trim()===''){
+    cards.forEach(function(c){c.style.display='';});
+    categories.forEach(function(c){c.style.display='';});
+    empty.style.display='none';
+    return;
+  }
+  var found=0;
+  categories.forEach(function(cat){
+    var catCards=cat.querySelectorAll('.ingredient-card');
+    var catFound=0;
+    catCards.forEach(function(c){
+      var name=c.getAttribute('data-name');
+      if(name&&name.indexOf(q)>=0){c.style.display='';catFound++;found++;}
+      else{c.style.display='none';}
+    });
+    cat.style.display=catFound>0?'':'none';
+  });
+  empty.style.display=found>0?'none':'';
+}
+
+// ===== 选择食材 → 弹出问题 =====
+function selectIngredient(name,emoji){
+  var overlay=document.getElementById('questionOverlay');
+  var body=document.getElementById('questionBody');
+  var qs=getSuggestedQuestions({name:name,emoji:emoji});
+  body.innerHTML=
+    '<div class="question-sheet-ingredient">'+
+    '<span class="ing-emoji">'+emoji+'</span>'+
+    '<div class="ing-name">'+name+'</div>'+
+    '</div>'+
+    qs.map(function(q){
+      return '<button class="question-chip" onclick="askFromIngredient(\''+q.text+'\')"><span class="chip-domain">'+q.domain+'</span>'+q.text+'</button>';
+    }).join('');
+  overlay.classList.add('show');
+}
+
+// ===== 从食材提问 =====
+function askFromIngredient(text){
+  document.getElementById('questionOverlay').classList.remove('show');
+  document.getElementById('queryInput').value=text;
+  ask();
+}
+
+// ===== 从搜索框直接提问 =====
+function askFromSearch(){
+  var q=document.getElementById('queryInput').value.trim();
+  if(!q){document.getElementById('queryInput').focus();return;}
+  ask();
 }
 
 // ===== 快捷标签 =====
@@ -846,7 +1191,7 @@ async function ask(){
   streamPaused=false;streamStopped=false;streamCtrl=null;
   useQuota();
   var dislikes=getDislikes();
-  if(dislikes.length>0&&mode!=='toxic'){
+  if(dislikes.length>0&&detectDomains(q).indexOf('toxic')===-1){
     q=q+'（注意：我不吃这些食物：'+dislikes.join('、')+'，请在回答中排除含有这些食材的搭配或菜谱）';
   }
 
@@ -862,7 +1207,7 @@ async function ask(){
     }
     var abortCtrl=new AbortController();streamCtrl=abortCtrl;streamPaused=false;
     try{
-      var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:SYS[mode],messages:[{role:'user',content:q}]})},15000,abortCtrl);
+      var resp=await fetchTO(API,{method:'POST',headers:USE_PROXY?{'Content-Type':'application/json'}:{'Content-Type':'application/json','Authorization':'Bearer '+window._K},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,stream:true,system:buildSystemPrompt(q),messages:[{role:'user',content:q}]})},15000,abortCtrl);
       if(!resp.ok){var et=await resp.text();throw new Error('AI服务不可用('+resp.status+')');}
       var reader=resp.body.getReader(),decoder=new TextDecoder(),buffer='',started=false;
       reply='';
@@ -1130,7 +1475,7 @@ function parseMD(md){
 }
 
 // ===== 初始化 =====
-renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
+renderIngredientMarket(); renderTags(['早餐搭配','减脂晚餐','糖尿病饮食','增肌吃什么','番茄炒蛋']);
 </script>
 <script>
 // 注册 Service Worker（PWA）
