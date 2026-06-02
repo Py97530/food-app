@@ -1,55 +1,41 @@
 // 食光 PWA Service Worker
-var CACHE = 'shiguang-v1';
-var FILES = [
-  '/food-app/',
-  '/food-app/index.html',
-  '/food-app/manifest.json',
-  '/food-app/icon-512.png'
-];
+// 每次部署记得改版本号（改这里就行）
+var CACHE = 'shiguang-v2';
 
-// 安装：预缓存核心文件
+// 安装时立即接管页面（不等旧 SW 释放）
 self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function(cache) {
-      return cache.addAll(FILES);
-    })
-  );
+  self.skipWaiting();
 });
 
-// 激活：清理旧缓存
+// 激活时清空所有旧缓存，并立即控制所有页面
 self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE; })
-            .map(function(k) { return caches.delete(k); })
-      );
+      return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+    }).then(function() {
+      return self.clients.claim();
     })
   );
 });
 
-// 请求拦截：缓存优先，网络回退
+// 请求拦截：网络优先，缓存兜底（保证每次打开都是最新内容）
 self.addEventListener('fetch', function(e) {
-  // 跳过 API 请求（不缓存 DeepSeek 调用）
   if (e.request.url.indexOf('api.deepseek.com') > -1) return;
   if (e.request.url.indexOf('workers.dev') > -1) return;
 
   e.respondWith(
-    caches.match(e.request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(e.request).then(function(resp) {
-        // 只缓存成功的 GET
-        if (resp.status === 200 && e.request.method === 'GET') {
-          var clone = resp.clone();
-          caches.open(CACHE).then(function(cache) {
-            cache.put(e.request, clone);
-          });
-        }
-        return resp;
-      }).catch(function() {
-        // 离线时返回缓存
-        return cached || new Response('离线模式', { status: 503 });
-      });
+    fetch(e.request).then(function(resp) {
+      // 成功的 GET 写入缓存（供离线时使用）
+      if (resp.status === 200 && e.request.method === 'GET') {
+        var clone = resp.clone();
+        caches.open(CACHE).then(function(cache) {
+          cache.put(e.request, clone);
+        });
+      }
+      return resp;
+    }).catch(function() {
+      // 网络不通时从缓存读取
+      return caches.match(e.request);
     })
   );
 });
